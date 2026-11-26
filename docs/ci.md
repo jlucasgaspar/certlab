@@ -38,6 +38,7 @@ CodeRabbit is an advisory review layer for pull requests that are not drafts and
 - Configuration: `.coderabbit.yaml`.
 - It never requests changes and its check is **not** a required status check, so an outage or a rate limit does not block merging.
 - Only `pnpm-lock.yaml` is excluded from review, because pnpm generates it. Application code, migrations, CI workflows, agent instructions and security configuration are never excluded.
+- Pull requests opened by the Renovate bot are not reviewed by CodeRabbit; the required CI checks and a maintainer review them.
 - Out of scope for now: the CodeRabbit coding agent, automatic fixes or commits, auto-merge and Verify/Security.
 
 ## Dependency updates
