@@ -39,3 +39,13 @@ CodeRabbit is an advisory review layer for pull requests that are not drafts and
 - It never requests changes and its check is **not** a required status check, so an outage or a rate limit does not block merging.
 - Only `pnpm-lock.yaml` is excluded from review, because pnpm generates it. Application code, migrations, CI workflows, agent instructions and security configuration are never excluded.
 - Out of scope for now: the CodeRabbit coding agent, automatic fixes or commits, auto-merge and Verify/Security.
+
+## Dependency updates
+
+Renovate keeps dependencies current. The configuration and its schedule are documented in `renovate.json5`:
+
+- Weekly, before 09:00 UTC on Mondays, including lock file maintenance for `pnpm-lock.yaml`.
+- Non-major updates are grouped in one pull request; each major update gets its own.
+- Automerge is disabled. Renovate pull requests go through the same required checks and are merged by a maintainer.
+- TypeScript stays below 6.1 until typescript-eslint supports it.
+- The gitleaks version in `.github/workflows/ci.yml` is paired with a checksum, so it is updated by hand together with the checksum.

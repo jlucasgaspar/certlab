@@ -1,0 +1,58 @@
+// Renovate configuration. See https://docs.renovatebot.com/configuration-options/
+//
+// Behavior summary:
+// - Runs weekly: updates and lock file maintenance are scheduled before 09:00 UTC on Mondays.
+// - Non-major updates (minor, patch, digest, pin) are grouped into one pull request.
+// - Major updates are never grouped: each one gets its own pull request.
+// - Nothing is merged automatically. A human reviews and merges every pull request.
+// - Covers the pnpm workspaces (package.json files, the catalog in pnpm-workspace.yaml and
+//   pnpm-lock.yaml), the `packageManager` field, `.nvmrc` and GitHub Actions (pinned by digest).
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended', 'helpers:pinGitHubActionDigests'],
+
+  // Weekly schedule (UTC).
+  schedule: ['before 9am on monday'],
+
+  // Never merge automatically, neither by Renovate nor by the platform.
+  automerge: false,
+  platformAutomerge: false,
+
+  // Keep pnpm-lock.yaml fresh with a weekly lock file maintenance pull request.
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: false,
+    schedule: ['before 9am on monday'],
+  },
+
+  // Wait a few days after a release before proposing it. This is longer than the
+  // `minimumReleaseAge` of pnpm, so the proposed versions can be installed.
+  minimumReleaseAge: '3 days',
+
+  // Limit noise.
+  prConcurrentLimit: 5,
+  prHourlyLimit: 2,
+
+  // Commit messages and pull request titles must be valid Conventional Commits (commitlint).
+  semanticCommits: 'enabled',
+  semanticCommitType: 'build',
+  semanticCommitScope: 'deps',
+
+  packageRules: [
+    {
+      description: 'Group all non-major updates into a single pull request.',
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      groupName: 'non-major dependencies',
+    },
+    {
+      description: 'Keep major updates separate: one pull request per dependency.',
+      matchUpdateTypes: ['major'],
+      groupName: null,
+    },
+    {
+      description: 'typescript-eslint does not support TypeScript 6.1 or later yet. Revisit when it does.',
+      matchPackageNames: ['typescript'],
+      allowedVersions: '<6.1.0',
+    },
+  ],
+}
