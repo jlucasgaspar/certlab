@@ -23,7 +23,7 @@ Pull requests are merged with a merge commit, so no commit is rewritten and ever
 
 ## Branch protection
 
-The `main` branch is protected with these rules. They are applied in the GitHub repository settings (they are not versioned in code), so update this section whenever the settings change:
+The `main` branch is protected with these rules. They are applied in the GitHub repository settings, as the `protect-main` ruleset and as a classic branch protection rule (they are not versioned in code), so update this section whenever the settings change:
 
 - Pull request required; no direct pushes, no force pushes and no branch deletion. The rules also apply to administrators.
 - All eight checks above must pass, and the branch must be up to date with `main`.

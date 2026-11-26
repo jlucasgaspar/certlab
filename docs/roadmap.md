@@ -25,7 +25,6 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 - [ ] Move the current root `README.md` (product vision) to `docs/vision.md`.
 - [ ] Write a new root `README.md` for developers: what Certlab is (one paragraph + link to `docs/vision.md`), repo layout, prerequisites, setup, common commands, environments, links to `docs/design.md`, `docs/roadmap.md` and `docs/adr/`.
 - [ ] Renovate or Dependabot.
-- [ ] Discord webhook notifications when a pull request is opened and when one is merged into `main`; keep the webhook URL in a GitHub secret, never in the repository.
 
 **1.2 Infrastructure bootstrap**
 - [ ] AWS account hygiene: no root usage, MFA, AWS Budgets alerts.
