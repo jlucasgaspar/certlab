@@ -51,6 +51,15 @@ See `README.md` for setup and commands, `docs/vision.md` for the product vision,
 - Do not invent a missing product or architecture decision. Resolve it first or create a focused discovery issue.
 - End each roadmap phase or numbered workstream with a wrap-up issue that follows the consolidation rules in `docs/issue-writing-standard.md`.
 
+## Agent backlog
+
+- If you find real, valuable, non-blocking work outside the scope of the active issue, record it in `docs/backlog.md` with status `candidate` instead of expanding the issue or losing the finding. Adding entries is the only out-of-scope change allowed; mention it in the pull request description.
+- Do not record blockers for the active issue, security vulnerabilities, credential exposure, data-loss risks or urgent production problems. Stop and escalate them to the maintainer immediately.
+- Never implement a backlog entry as part of an unrelated issue, and never change the status of an entry unless you are doing a requested triage.
+- PM and planning work reviews `candidate` entries only when the maintainer asks for a triage. Check for duplicates in the backlog, the repository and the issue tracker first, then update the entry with the decision. Never delete processed entries.
+- Creating or updating issues in the issue tracker happens only during a triage the maintainer requested or authorized. The backlog file is not a standing authorization for external writes.
+- Keep entries safe for a public repository and written in English. Follow `docs/backlog.md`.
+
 ## Git workflow
 
 - Branch names follow `lab-<number>-<short-description>`: lowercase, hyphen-separated, no user prefix. Example: `lab-8-monorepo-pnpm-turborepo`. Do not use the branch name Linear suggests.
