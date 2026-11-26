@@ -14,10 +14,10 @@ Development is AI-first: a single Linear ticket such as "add a field to Sequence
 Use **one monorepo** with pnpm workspaces and Turborepo:
 
 - `apps/api`, `apps/web`, `apps/mobile`
-- `packages/contracts` (zod schemas), `packages/core` (pure domain logic), `packages/tokens`, `packages/ui-web`, `packages/config`
+- `packages/contracts` (zod schemas), `packages/core` (pure domain logic), `packages/tokens`, `packages/i18n` (shared locale definitions and message catalogs), `packages/ui-web`, `packages/config`
 - `content/`, `infra/`, `docs/`
 
-Packages never import from apps. `contracts` and `core` stay free of platform dependencies (React, Hono, Node-only APIs) so every app can use them.
+Packages never import from apps. `contracts`, `core`, and `i18n` stay free of platform dependencies (React, Hono, Node-only APIs) so every app can use them.
 
 ## Consequences
 

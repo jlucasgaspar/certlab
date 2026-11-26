@@ -17,6 +17,7 @@ We considered running stage on an always-on EC2 instance that shuts itself down 
 - **Production runtime is decided in phase 3** (Lambda, EC2 or Fargate) in its own ADR; switching is a deploy change, not a rewrite.
 - Architecture: **modular monolith** (`auth`, `catalog`, `practice`, `progress`, `review`), each module owning its tables. Split into services only when a module has a real reason (e.g. the future AI tutor).
 - Drizzle ORM + SQL migrations; zod at the edge; pino for logs.
+- Database indexes are query-driven. Define primary keys and unique constraints for correctness; add other indexes only for documented filter, join, ordering or foreign-key access patterns. Avoid speculative indexes because every index increases write, storage and maintenance cost.
 
 ## Consequences
 

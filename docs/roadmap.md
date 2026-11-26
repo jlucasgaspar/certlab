@@ -37,7 +37,7 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 
 **1.4 Authentication (backend)**
 - [ ] Better Auth: email + password, Google, GitHub; sessions; password reset; account deletion.
-- [ ] Drizzle schema + migrations; migration step in CI/CD.
+- [ ] Drizzle schema + SQL migrations; query-driven indexes only (each non-constraint index must serve a documented access pattern); migration step in CI/CD.
 - [ ] Rate limiting on auth endpoints.
 
 **1.5 Web UI (local, then stage)**
@@ -47,7 +47,7 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 - [ ] Deploy to S3 + CloudFront (stage) via CI.
 
 **1.6 AI workflow**
-- [ ] Linear workspace and project; ticket template (context, acceptance criteria, out of scope).
+- [ ] Linear workspace and project; ticket template following the [issue writing standard](issue-writing-standard.md).
 - [ ] First loop: AI writes ticket → AI opens PR → CI → human review → merge → auto-deploy to stage.
 
 **Exit check:** from a phone, on the stage URL, you can sign up, log in, reset your password and delete your account; every change reached stage through a reviewed PR with green CI.

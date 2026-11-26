@@ -25,6 +25,13 @@ See `README.md` for the product overview, `docs/design.md` for the architecture,
 - Do not weaken types, lint rules, tests, security checks, or CI gates merely to make a change pass.
 - Keep changes scoped to the active Linear issue and report unrelated findings instead of silently expanding scope.
 
+## Issue quality
+
+- Follow `docs/issue-writing-standard.md` whenever creating, splitting, or materially refining an issue.
+- Give each implementation issue one primary deliverable, explicit in-scope and out-of-scope boundaries, verifiable acceptance criteria, expected validation, and direct references.
+- When an issue references a broad roadmap item, design section, or ADR, state the exact subset that applies.
+- Do not invent a missing product or architecture decision. Resolve it first or create a focused discovery issue.
+
 ## Public repository hygiene
 
 - Never commit credentials, OAuth tokens, private workspace identifiers, personal filesystem paths, or machine-specific agent configuration.

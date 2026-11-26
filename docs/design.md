@@ -124,6 +124,7 @@ question: id, lab_id, kind, prompt, payload (jsonb), answer (jsonb), explanation
 
 - `question.kind` is one of: `multiple_choice`, `choose_two`, `sequence`, `match_pairs`, `complete_code`, `exam_scenario`, `diagram`. `payload` and `answer` are JSONB whose shape is defined per kind by a zod discriminated union in `packages/contracts`.
 - **`answer_attempt` is an append-only event log** (user, question, question version, submitted answer, correct, time spent, timestamp). It is the data foundation for adaptive review, analytics and the future AI tutor. We record it from the first lab, even before we use it.
+- Database indexes are query-driven. Primary keys and unique constraints enforce correctness; every additional index must serve a documented filter, join, ordering or foreign-key access pattern. Avoid speculative indexes because each one adds write, storage and maintenance cost.
 
 ### 4.4 API style
 
