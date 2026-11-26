@@ -49,6 +49,7 @@ See `README.md` for setup and commands, `docs/vision.md` for the product vision,
 - Give each implementation issue one primary deliverable, explicit in-scope and out-of-scope boundaries, verifiable acceptance criteria, expected validation, and direct references.
 - When an issue references a broad roadmap item, design section, or ADR, state the exact subset that applies.
 - Do not invent a missing product or architecture decision. Resolve it first or create a focused discovery issue.
+- End each roadmap phase or numbered workstream with a wrap-up issue that follows the consolidation rules in `docs/issue-writing-standard.md`.
 
 ## Git workflow
 
