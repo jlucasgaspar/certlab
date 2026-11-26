@@ -9,3 +9,8 @@
 .agent-local/
 CLAUDE.local.md
 
+
+# Dependencies and build output
+node_modules/
+dist/
+.turbo/
