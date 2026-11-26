@@ -2,14 +2,20 @@ packages:
   - apps/*
   - packages/*
 
+allowBuilds:
+  lefthook: false
+
 # Single source of truth for shared tooling versions.
 # TypeScript stays on 6.0.x until typescript-eslint supports TypeScript 7.
 catalog:
+  '@commitlint/cli': 21.2.4
+  '@commitlint/config-conventional': 21.2.4
   '@eslint/js': 10.0.1
   '@types/node': 26.6.6
   eslint: 10.15.0
   eslint-config-prettier: 10.1.8
   globals: 17.14.0
+  lefthook: 2.2.2
   prettier: 3.10.1
   typescript: 6.0.3
   typescript-eslint: 8.74.0
