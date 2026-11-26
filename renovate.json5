@@ -11,6 +11,10 @@
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: ['config:recommended', 'helpers:pinGitHubActionDigests'],
 
+  // `config:recommended` includes a preset that uses `fix`/`chore` as the commit type. Ignore it
+  // so that `semanticCommitType` below applies to every update.
+  ignorePresets: [':semanticPrefixFixDepsChoreOthers'],
+
   // Weekly schedule (UTC).
   schedule: ['before 9am on monday'],
 
