@@ -37,7 +37,7 @@ See `README.md` for the product overview, `docs/design.md` for the architecture,
 - Branch names follow `lab-<number>-<short-description>`: lowercase, hyphen-separated, no user prefix. Example: `lab-8-monorepo-pnpm-turborepo`. Do not use the branch name Linear suggests.
 - Commits follow Conventional Commits, in English. Example: `feat(api): add health endpoint`. Reference the Linear issue in the commit body when useful (`Refs: LAB-8`).
 - Every pull request links its Linear issue and carries the issue key in the title. Example: `build: scaffold pnpm and Turborepo monorepo (LAB-8)`.
-- Merge with squash; the pull request title becomes the commit message, so it must be a valid Conventional Commit.
+- Merge with a merge commit, which keeps the branch history. Every commit on the branch must be a valid Conventional Commit, because none is rewritten on merge; keep the branch history clean (no `wip` commits).
 
 ## Public repository hygiene
 
