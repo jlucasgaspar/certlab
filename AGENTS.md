@@ -39,6 +39,12 @@ See `README.md` for the product overview, `docs/design.md` for the architecture,
 - Every pull request links its Linear issue and carries the issue key in the title. Example: `build: scaffold pnpm and Turborepo monorepo (LAB-8)`.
 - Merge with a merge commit, which keeps the branch history. Every commit on the branch must be a valid Conventional Commit, because none is rewritten on merge; keep the branch history clean (no `wip` commits).
 
+## Code conventions
+
+- Do not use `index.ts` barrel files in backend code. Import from the file that defines the symbol (for example `./health/routes`) so imports stay easy to trace.
+- Packages expose their public API through explicit subpath entries in the `exports` field of `package.json`, not through a catch-all `index`.
+- Name files after their domain (`limits.ts`, `session-rules.ts`). Do not create generic `constants.ts` or `utils.ts` files.
+
 ## Public repository hygiene
 
 - Never commit credentials, OAuth tokens, private workspace identifiers, personal filesystem paths, or machine-specific agent configuration.
