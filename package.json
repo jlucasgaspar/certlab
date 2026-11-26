@@ -15,11 +15,19 @@
     "test": "turbo run test",
     "workspaces": "turbo ls",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "lefthook install",
+    "lint:commits": "commitlint --from origin/main --to HEAD --verbose",
+    "typecheck:affected": "turbo run typecheck --affected",
+    "test:affected": "turbo run test --affected",
+    "test:hooks": "scripts/test-git-hooks.sh"
   },
   "devDependencies": {
-    "turbo": "2.11.13",
     "@certlab/config": "workspace:*",
-    "prettier": "catalog:"
+    "@commitlint/cli": "catalog:",
+    "@commitlint/config-conventional": "catalog:",
+    "lefthook": "catalog:",
+    "prettier": "catalog:",
+    "turbo": "2.11.13"
   }
 }
