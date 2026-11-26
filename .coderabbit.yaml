@@ -18,10 +18,11 @@ reviews:
       - main
     # Never pause automatic reviews after a number of reviewed commits.
     auto_pause_after_reviewed_commits: 0
-    # Dependency update pull requests from Renovate are validated by the required CI checks.
-    # Skipping them saves the hourly review allowance for human and agent changes.
-    ignore_usernames:
-      - 'renovate[bot]'
+    # Skip pull requests labeled `dependencies`. Renovate adds this label to npm, Node.js and lock
+    # file updates only (see renovate.json5), which the required CI checks already validate.
+    # GitHub Actions updates are not labeled, so changes to CI workflows are always reviewed.
+    labels:
+      - '!dependencies'
   # Explicit, justified exclusions only. Application code, migrations, CI
   # workflows, agent instructions and security configuration are never excluded.
   path_filters:

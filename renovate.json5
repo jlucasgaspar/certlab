@@ -2,9 +2,13 @@
 //
 // Behavior summary:
 // - Runs weekly: updates and lock file maintenance are scheduled before 09:00 UTC on Mondays.
-// - Non-major updates (minor, patch, digest, pin) are grouped into one pull request.
+// - Non-major updates (minor, patch, digest, pin) are grouped into one pull request per kind:
+//   one for npm and Node.js dependencies, and one for GitHub Actions.
 // - Major updates are never grouped: each one gets its own pull request.
 // - Nothing is merged automatically. A human reviews and merges every pull request.
+// - npm, Node.js and lock file pull requests get the `dependencies` label, which CodeRabbit uses
+//   to skip them. GitHub Actions pull requests have no such label, so CodeRabbit reviews them
+//   (they change CI workflows).
 // - Covers the pnpm workspaces (package.json files, the catalog in pnpm-workspace.yaml and
 //   pnpm-lock.yaml), the `packageManager` field, `.nvmrc` and GitHub Actions (pinned by digest).
 {
@@ -40,9 +44,26 @@
 
   packageRules: [
     {
-      description: 'Group all non-major updates into a single pull request.',
+      description: 'Label npm, Node.js and lock file pull requests so CodeRabbit skips them. GitHub Actions pull requests stay unlabeled and are reviewed.',
+      matchManagers: ['npm', 'nvm'],
+      addLabels: ['dependencies'],
+    },
+    {
+      description: 'Label lock file maintenance pull requests so CodeRabbit skips them.',
+      matchUpdateTypes: ['lockFileMaintenance'],
+      addLabels: ['dependencies'],
+    },
+    {
+      description: 'Group non-major npm and Node.js updates into a single pull request.',
+      matchManagers: ['npm', 'nvm'],
       matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
       groupName: 'non-major dependencies',
+    },
+    {
+      description: 'Group non-major GitHub Actions updates into a single pull request.',
+      matchManagers: ['github-actions'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      groupName: 'non-major GitHub Actions',
     },
     {
       description: 'Keep major updates separate: one pull request per dependency.',
