@@ -3,5 +3,6 @@
 .codex/config.toml
 .claude/settings.local.json
 .claude/hooks-local/
+.agent-local/
 CLAUDE.local.md
 

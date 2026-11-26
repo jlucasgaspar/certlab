@@ -7,6 +7,7 @@ private_paths=(
   ".codex/config.toml"
   ".claude/settings.local.json"
   ".claude/hooks-local"
+  ".agent-local"
   "CLAUDE.local.md"
   ".claude/hooks/guard-linear-issue-write.mjs"
 )
@@ -32,7 +33,7 @@ if matches=$(git grep -n -E "$personal_path_pattern" -- ':!scripts/check-public-
   exit 1
 fi
 
-private_integration_pattern='(certlab-workspace|mcp\.linear\.app|team key.*LAB|team with key.*LAB)'
+private_integration_pattern='(certlab-workspace|mcp\.linear\.app|team key.*LAB|team with key.*LAB|discord\.com/channels/[0-9]+/[0-9]+|DISCORD_ALLOWED_GUILDS[[:space:]]*=)'
 
 if matches=$(git grep -n -E "$private_integration_pattern" -- ':!scripts/check-public-repo-hygiene.sh'); then
   printf 'Private integration details found in tracked files:\n%s\n' "$matches" >&2
