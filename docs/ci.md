@@ -1,6 +1,6 @@
 # Continuous integration and branch protection
 
-CI is the definitive quality gate (see [ADR-0008](adr/0008-ai-first-guardrails.md)). Local Git hooks ([git-hooks.md](git-hooks.md)) give faster feedback, but nothing merges without a green CI and a human approval.
+CI is the definitive quality gate (see [ADR-0008](adr/0008-ai-first-guardrails.md)). Local Git hooks ([git-hooks.md](git-hooks.md)) give faster feedback, but nothing merges without a green CI.
 
 ## Workflow
 
@@ -23,11 +23,17 @@ Pull requests are merged with a merge commit, so no commit is rewritten and ever
 
 ## Branch protection
 
-See the rules applied to `main` in the repository settings. The deterministic checks above and one human approval are required.
+The `main` branch is protected with these rules:
+
+- Pull request required; no direct pushes, no force pushes and no branch deletion. The rules also apply to administrators.
+- All eight checks above must pass, and the branch must be up to date with `main`.
+- All conversations must be resolved.
+- Merge commits are the only enabled merge method, so linear history is not required.
+- **Required approvals: zero for now.** GitHub does not let an author approve their own pull request and there is a single maintainer. Revisit this when there is a second reviewer.
 
 ## CodeRabbit
 
-CodeRabbit is an advisory review layer for pull requests that are not drafts and target `main`. It posts a summary and review comments, and it does not replace CI or the human approval.
+CodeRabbit is an advisory review layer for pull requests that are not drafts and target `main`. It posts a summary and review comments, and it does not replace CI or human review.
 
 - Configuration: `.coderabbit.yaml`.
 - It never requests changes and its check is **not** a required status check, so an outage or a rate limit does not block merging.
