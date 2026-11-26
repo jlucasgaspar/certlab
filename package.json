@@ -2,6 +2,7 @@
   "name": "certlab",
   "private": true,
   "version": "0.0.0",
+  "type": "module",
   "description": "Gamified, mobile-first learning platform for technical certifications.",
   "packageManager": "pnpm@11.9.0",
   "engines": {
@@ -12,9 +13,13 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "workspaces": "turbo ls"
+    "workspaces": "turbo ls",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "turbo": "2.11.13"
+    "turbo": "2.11.13",
+    "@certlab/config": "workspace:*",
+    "prettier": "catalog:"
   }
 }
