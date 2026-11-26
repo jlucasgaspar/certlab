@@ -197,6 +197,12 @@ The mascot concept is an animated character combining an atom and a cloud (Cloud
 
 The interface should be mobile-first, inspired by Duolingo and Brilliant, with a playful but sophisticated visual language.
 
+### Localization
+
+The product interface should be available in English and Brazilian Portuguese. English is the source and fallback language, while users can choose either language and keep that preference across sessions.
+
+This requirement applies to the product interface and navigation. Certification and learning content may remain in its source language until content localization is specified separately.
+
 ---
 
 ## 🏗️ Technical Architecture

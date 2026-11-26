@@ -13,7 +13,7 @@ Certlab is a gamified, mobile-first learning platform for technical certificatio
 
 Two facts shape the architecture more than anything else:
 
-1. **Three surfaces, one product.** Desktop web, mobile web (PWA) and a native app in the stores. The mobile layout is the source of truth; desktop is a responsive adaptation. The design system already exists as React + CSS in `~/ze/projects/certlab/design-system`.
+1. **Three surfaces, one product.** Desktop web, mobile web (PWA) and a native app in the stores. The mobile layout is the source of truth; desktop is a responsive adaptation. Shared tokens and components are maintained in `packages/tokens` and `packages/ui-web` as they are ported into the repository.
 2. **AI-first development.** One AI writes tickets in Linear, another AI implements them as pull requests, and a human (Zé) reviews every PR and the process itself. Quality therefore has to be enforced by tooling — types, tests, lint, hooks, CI gates, branch protection — from the first commit, not added later. See [ADR-0008](adr/0008-ai-first-guardrails.md).
 
 Guiding constraint: **start simple, keep costs near zero in stage, and keep every choice reversible.**
@@ -65,6 +65,7 @@ certlab/
 │   ├── contracts/    zod schemas: API requests/responses, the 7 question kinds
 │   ├── core/         pure domain logic shared by clients (lab session queue, retry rules)
 │   ├── tokens/       design tokens (colors, type, spacing, radii, motion) as TS + CSS
+│   ├── i18n/         shared locale definitions and message catalogs (en, pt-BR)
 │   ├── ui-web/       React DOM components ported from the design system
 │   └── config/       shared tsconfig, eslint, vitest presets
 ├── content/          question bank as versioned files (ADR-0009)
@@ -74,7 +75,7 @@ certlab/
 
 Tooling: **pnpm workspaces + Turborepo** (affected-only builds and tests in CI).
 
-Dependency rule: `apps/*` may depend on `packages/*`; packages never depend on apps; `contracts` and `core` have no runtime dependency on React, Hono or any platform API, so they work in the API, the web and the native app alike.
+Dependency rule: `apps/*` may depend on `packages/*`; packages never depend on apps; `contracts`, `core`, and `i18n` have no runtime dependency on React, Hono or any platform API, so they work in the API, the web and the native app alike.
 
 ---
 
@@ -142,15 +143,19 @@ question: id, lab_id, kind, prompt, payload (jsonb), answer (jsonb), explanation
   - `< 1024px`: the mobile app layout (bottom tab bar, pinned CTA bar).
   - `≥ 1024px`: desktop layout (left sidebar, right rail on the trail, centered focus column on questions).
 - Styling: the design system's CSS tokens and component CSS, ported into `packages/ui-web` (TypeScript, typed props from the existing `.d.ts` files).
-- Product copy is English (per the design system's voice rules).
+- Product UI supports English (`en`) and Brazilian Portuguese (`pt-BR`). English is the source and fallback locale.
+- All user-facing interface copy uses translation keys and locale message catalogs; do not hard-code copy in components.
+- The initial locale follows the browser or device preference when supported, users can switch languages manually, and their choice is persisted locally. Once authenticated profile preferences exist, the selected locale is also synced to the user profile.
+- Localization applies to product UI and navigation. Certification and learning content may remain in its source language until content localization is specified separately.
+- Both locales follow the design system's voice rules.
 
 ### 5.2 Native app (`apps/mobile`, phase 4)
 
-Pending [ADR-0007](adr/0007-mobile-app-expo-vs-capacitor.md): Expo (React Native) vs Capacitor (web app wrapped in a native shell). Either way it consumes `contracts`, `core` and `tokens`. Store requirements we already know about: Sign in with Apple (because we offer Google/GitHub login), in-app account deletion, privacy policy, stable versioned API.
+Pending [ADR-0007](adr/0007-mobile-app-expo-vs-capacitor.md): Expo (React Native) vs Capacitor (web app wrapped in a native shell). Either way it consumes `contracts`, `core` and `tokens`, and reuses the same English and Brazilian Portuguese message catalogs as the web app. Store requirements we already know about: Sign in with Apple (because we offer Google/GitHub login), in-app account deletion, privacy policy, stable versioned API.
 
 ### 5.3 Design system
 
-Source: `~/ze/projects/certlab/design-system` (readme, tokens, components, UI kits). Non-negotiables carried into code: 2px ink borders on everything tappable, one accent (Blue 500 `#2D5BFF`), Bricolage Grotesque 800 at 75% width in caps for headlines, lab/science voice, no emoji, no cloud-vendor logos.
+The versioned source of truth lives in `packages/tokens` and `packages/ui-web`. Non-negotiables carried into code: 2px ink borders on everything tappable, one accent (Blue 500 `#2D5BFF`), Bricolage Grotesque 800 at 75% width in caps for headlines, lab/science voice, no emoji, no cloud-vendor logos.
 
 ---
 

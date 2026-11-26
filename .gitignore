@@ -1,0 +1,7 @@
+# Maintainer-local agent configuration
+.mcp.json
+.codex/config.toml
+.claude/settings.local.json
+.claude/hooks-local/
+CLAUDE.local.md
+

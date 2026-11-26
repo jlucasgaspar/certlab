@@ -1,3 +1,12 @@
+developer_instructions = """
+Certlab maintainer workflow:
+- Use the Linear team with key LAB.
+- Write Linear issue titles and descriptions in Brazilian Portuguese.
+- You may read, create, and update Linear issues only when Zé explicitly requests it.
+- This is a narrow exception to the general read-only HTTP rule and applies only to the requested Linear operation.
+- Private design-system references are available at ~/ze/projects/certlab/design-system and must never be committed as repository paths.
+"""
+
 [mcp_servers.linear]
 url = "https://mcp.linear.app/mcp"
 auth = "oauth"

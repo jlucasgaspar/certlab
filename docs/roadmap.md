@@ -42,7 +42,8 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 
 **1.5 Web UI (local, then stage)**
 - [ ] Vite + React app, design tokens and fonts, base components ported from the design system.
-- [ ] Screens: Welcome, Sign up / Log in, Reset password, empty "bench" after login.
+- [ ] Localization foundation: English (`en`) and Brazilian Portuguese (`pt-BR`) message catalogs, English fallback, browser locale detection, manual language selection and persisted preference; no hard-coded user-facing copy.
+- [ ] Screens in both supported locales: Welcome, Sign up / Log in, Reset password, empty "bench" after login.
 - [ ] Deploy to S3 + CloudFront (stage) via CI.
 
 **1.6 AI workflow**
@@ -66,6 +67,7 @@ Goal: study CLF-C02 for real on your phone.
 - [ ] Errata + Retest (simple rules).
 - [ ] XP, levels, daily streak (timezone-aware).
 - [ ] Profile.
+- [ ] Language preference in Profile, persisted locally and synced to the authenticated user profile.
 - [ ] PWA: installable, app icon, offline shell.
 - [ ] Desktop layout (sidebar, right rail) for the same screens.
 - [ ] E2E smoke test of the core loop (log in → lab → answer → errata).
@@ -96,6 +98,7 @@ Goal: everything built so far running in production, properly, at low cost. Come
 - [ ] Spike: Expo vs Capacitor (trail screen + a drag-based question on iPhone and a low-end Android) → close ADR-0007.
 - [ ] Toolchain: Xcode, Android Studio, Apple Developer and Google Play accounts.
 - [ ] `apps/mobile` consuming `contracts`, `core`, `tokens`.
+- [ ] Native UI consuming the shared English and Brazilian Portuguese message catalogs and honoring the user's saved language preference.
 - [ ] Native essentials: Sign in with Apple, push notifications (streak reminders), haptics, deep links.
 - [ ] Store assets (icon 1024 exported crisp, screenshots, descriptions), privacy labels.
 - [ ] TestFlight / internal testing track, then submission.
