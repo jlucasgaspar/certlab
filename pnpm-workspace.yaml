@@ -1,3 +1,16 @@
 packages:
   - apps/*
   - packages/*
+
+# Single source of truth for shared tooling versions.
+# TypeScript stays on 6.0.x until typescript-eslint supports TypeScript 7.
+catalog:
+  '@eslint/js': 10.0.1
+  '@types/node': 26.6.6
+  eslint: 10.15.0
+  eslint-config-prettier: 10.1.8
+  globals: 17.14.0
+  prettier: 3.10.1
+  typescript: 6.0.3
+  typescript-eslint: 8.74.0
+  vitest: 5.1.2

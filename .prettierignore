@@ -1,0 +1,8 @@
+node_modules
+dist
+coverage
+.turbo
+pnpm-lock.yaml
+
+# Documentation formatting is out of scope for the toolchain setup (LAB-10).
+*.md
