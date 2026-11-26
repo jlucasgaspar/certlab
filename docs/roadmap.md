@@ -7,7 +7,7 @@ Five phases. Everything lands in **stage** first, built the cheapest way that is
 
 Each phase ends with an **exit check**: what must be true before moving on.
 
-This roadmap is the spec source; the actual work is tracked as tickets in **Linear** (created from this file by an AI agent). Checkboxes here are not updated per ticket.
+This roadmap is the spec source; the actual work is tracked as tickets in **Linear** (created from this file by an AI agent). Checkboxes are not updated per implementation ticket. The final wrap-up issue for each phase or numbered workstream reconciles them against what was actually delivered, records deferrals and updates the supporting documentation.
 
 ---
 
@@ -25,6 +25,8 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 - [ ] Move the current root `README.md` (product vision) to `docs/vision.md`.
 - [ ] Write a new root `README.md` for developers: what Certlab is (one paragraph + link to `docs/vision.md`), repo layout, prerequisites, setup, common commands, environments, links to `docs/design.md`, `docs/roadmap.md` and `docs/adr/`.
 - [ ] Renovate or Dependabot.
+- [ ] Discord webhook notifications when a pull request is opened and when one is merged into `main`; keep the webhook URL in a GitHub secret, never in the repository.
+- [ ] Phase 1.1 wrap-up: reconcile delivered work and roadmap checkboxes, update documentation and agent guidance, verify versions and quality gates, and record follow-up work.
 
 **1.2 Infrastructure bootstrap**
 - [ ] AWS account hygiene: no root usage, MFA, AWS Budgets alerts.

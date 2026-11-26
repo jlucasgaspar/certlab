@@ -4,7 +4,7 @@
 
 Certlab is a gamified, mobile-first learning platform for technical certifications. This public repository contains the application source code, infrastructure, and technical documentation.
 
-See `README.md` for the product overview, `docs/design.md` for the architecture, and `docs/roadmap.md` for the delivery plan.
+See `README.md` for setup and commands, `docs/vision.md` for the product vision, `docs/design.md` for the architecture, and `docs/roadmap.md` for the delivery plan.
 
 ## Setup and commands
 
@@ -25,7 +25,7 @@ See `README.md` for the product overview, `docs/design.md` for the architecture,
 
 ## Repository language
 
-- Write repository documentation in English, including `README.md`, `CLAUDE.md`, `AGENTS.md`, and `docs/design.md`.
+- Write repository documentation in English, including `README.md`, `docs/vision.md`, `CLAUDE.md`, `AGENTS.md`, and `docs/design.md`.
 - Keep code, identifiers, comments, commit messages, pull requests, and public GitHub issues in English.
 - Issue-tracker (Linear) issues are written in Brazilian Portuguese and follow `docs/issue-writing-standard.md`.
 
@@ -49,6 +49,7 @@ See `README.md` for the product overview, `docs/design.md` for the architecture,
 - Give each implementation issue one primary deliverable, explicit in-scope and out-of-scope boundaries, verifiable acceptance criteria, expected validation, and direct references.
 - When an issue references a broad roadmap item, design section, or ADR, state the exact subset that applies.
 - Do not invent a missing product or architecture decision. Resolve it first or create a focused discovery issue.
+- End each roadmap phase or numbered workstream with a wrap-up issue that follows the consolidation rules in `docs/issue-writing-standard.md`.
 
 ## Git workflow
 

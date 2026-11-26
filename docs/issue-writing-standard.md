@@ -64,6 +64,23 @@ Before creating or assigning an implementation issue, confirm that:
 
 If a material decision is unresolved, the issue is not ready for implementation. Resolve the decision, create a focused discovery issue, or record the accepted choice in the appropriate source document before assigning implementation work.
 
+## Phase wrap-up issues
+
+Every roadmap phase or numbered workstream that produces multiple implementation issues must end with one wrap-up issue. The wrap-up is ordered after and depends on all implementation issues in that scope. It consolidates the delivered state before the next phase or workstream begins.
+
+A wrap-up issue must:
+
+- compare completed work with the roadmap, design document, accepted ADRs, and the issues in the completed scope;
+- reconcile the applicable roadmap checkboxes against repository and external-system evidence;
+- update the developer README, architecture documentation, ADR index, contributor guidance, and agent instructions when they no longer describe the repository accurately;
+- verify that documented runtime, toolchain, dependency, schema, and configuration versions match the versions actually in use;
+- run the complete quality-gate suite applicable to that phase and record the evidence;
+- identify incomplete, deferred, contradictory, or newly discovered work explicitly;
+- create or request focused follow-up issues for material gaps instead of silently expanding the wrap-up scope;
+- summarize completed work, deferrals, known limitations, and follow-ups in the wrap-up pull request.
+
+Small documentation and consistency corrections belong in the wrap-up. New product capabilities, substantial refactors, dependency migrations, and unfinished implementation work do not. The wrap-up must not mark a roadmap item complete without evidence.
+
 ## Quality examples
 
 Ambiguous:

@@ -1,7 +1,7 @@
 # Certlab — System Design
 
 > Status: draft · Last updated: 2026-11-26
-> Product vision lives in the root [README](../README.md). Delivery plan lives in [roadmap.md](roadmap.md). Individual decisions live in [adr/](adr/README.md).
+> Product vision lives in [vision.md](vision.md); setup and commands live in the root [README](../README.md). Delivery plan lives in [roadmap.md](roadmap.md). Individual decisions live in [adr/](adr/README.md).
 
 This document describes how Certlab is built: the pieces, how they talk to each other, where they run and which rules every change must follow. It is the map; the ADRs are the reasoning behind each road.
 
