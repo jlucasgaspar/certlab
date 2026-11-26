@@ -1,0 +1,1 @@
+Esse é um projeto incipiente que ainda nem existe. A idéia é o código ficar aqui em `~/www/certlab`. Dentro de `~/ze/projects/certlab` fica mais os arquivos de idéias, backups.. refs e tudo mais. Por enquanto temos refs e architecture-design aqui mas a idéia é tirar no futuro. Aqui vai ser o ambiente de código

@@ -1,0 +1,20 @@
+# NNNN. Title
+
+- **Status:** Proposed
+- **Date:** YYYY-MM-DD
+
+## Context
+
+What forces are at play? What problem are we solving, and what constraints matter?
+
+## Decision
+
+What we will do, stated plainly.
+
+## Consequences
+
+What becomes easier, what becomes harder, what we must now watch for.
+
+## Alternatives considered
+
+- **Option** — why not.
