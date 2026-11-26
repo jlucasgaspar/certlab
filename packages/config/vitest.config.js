@@ -1,3 +1,3 @@
-import config from './vitest/index.js';
+import config from './vitest.js';
 
 export default config;

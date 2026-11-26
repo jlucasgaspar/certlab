@@ -1,9 +1,9 @@
 {
-  "extends": "./tsconfig/base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "allowJs": true,
     "checkJs": true,
     "types": ["node"]
   },
-  "include": ["eslint", "prettier", "vitest", "test", "*.js"]
+  "include": ["test", "*.js"]
 }

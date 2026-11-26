@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { createConfig } from '../eslint/index.js';
-import base from '../tsconfig/base.json' with { type: 'json' };
+import { createConfig } from '../eslint.js';
+import base from '../tsconfig.base.json' with { type: 'json' };
 
 describe('shared presets', () => {
   it('keeps TypeScript strict mode enabled', () => {

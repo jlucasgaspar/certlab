@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    "./workspace-name": "./src/workspace-name.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

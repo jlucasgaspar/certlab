@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "exports": {
-    "./tsconfig/base.json": "./tsconfig/base.json",
-    "./eslint": "./eslint/index.js",
-    "./prettier": "./prettier/index.js",
-    "./vitest": "./vitest/index.js"
+    "./tsconfig/base.json": "./tsconfig.base.json",
+    "./eslint": "./eslint.js",
+    "./prettier": "./prettier.js",
+    "./vitest": "./vitest.js"
   },
   "scripts": {
     "lint": "eslint .",
