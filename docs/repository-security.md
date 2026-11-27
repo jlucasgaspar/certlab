@@ -19,7 +19,7 @@ Settings (applied 2026-11-27):
 - Pull request required, with at least one approval from a Code Owner. `.github/CODEOWNERS` assigns every path to `@jlucasgaspar`, including the file itself and `.github/`.
 - A new commit after the approval dismisses it, and the latest push must be approved.
 - All review conversations resolved.
-- The eight required checks from [ci.md](ci.md), with the branch up to date.
+- The nine required checks from [ci.md](ci.md), with the branch up to date.
 - Merge commits only, no force pushes and no branch deletion.
 - One bypass actor: the repository admin role, in `pull_request` mode (see below).
 
