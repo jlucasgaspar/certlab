@@ -198,7 +198,7 @@ Because most code will be written by AI agents, these are requirements from phas
 - later: E2E (Playwright), coverage thresholds, AI code review agents.
 
 **Repository rules:**
-- `main` is protected: PR required, CI required, Code Owner approval (the maintainer can bypass it, see `docs/repository-security.md`), no force pushes, merge commits only.
+- `main` is protected: PR required, CI required, no force pushes, merge commits only. A Code Owner approval rule with a maintainer bypass is being added (see `docs/repository-security.md`).
 - Every PR links its Linear ticket; the PR template asks what was tested and what risk it carries.
 - Dependency updates via Renovate (or Dependabot).
 - `CLAUDE.md` / `AGENTS.md` at the root and in each app tell agents the conventions, commands and boundaries.

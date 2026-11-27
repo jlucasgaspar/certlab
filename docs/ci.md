@@ -28,10 +28,10 @@ The `main` branch is protected with these rules. They are applied in the GitHub 
 - Pull request required; no direct pushes, no force pushes and no branch deletion.
 - All eight checks above must pass, and the branch must be up to date with `main`.
 - All conversations must be resolved.
-- At least one approval from a Code Owner (`.github/CODEOWNERS`), and a new push after the approval dismisses it.
+- Pending, applied after the LAB-18 pull request merges: at least one approval from a Code Owner (`.github/CODEOWNERS`), and a new push after the approval dismisses it. Required approvals are zero until then.
 - Merge commits are the only enabled merge method, so linear history is not required.
 - The classic branch protection rule keeps zero required approvals and enforces administrators. The approval requirement lives only in the ruleset, because the classic rule has no bypass.
-- **Maintainer bypass.** GitHub does not let an author approve their own pull request, and the maintainer is the only Code Owner. The repository admin role is therefore a bypass actor in `pull_request` mode so the maintainer can merge. Agents never use it. See [repository-security.md](repository-security.md) for the reasoning, the access model, Actions settings and the secrets inventory.
+- **Maintainer bypass (pending with the approval rule).** GitHub does not let an author approve their own pull request, and the maintainer is the only Code Owner. The repository admin role is therefore a bypass actor in `pull_request` mode so the maintainer can merge. Agents never use it. See [repository-security.md](repository-security.md) for the reasoning, the access model, Actions settings and the secrets inventory.
 
 ## CodeRabbit
 

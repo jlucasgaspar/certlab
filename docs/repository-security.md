@@ -11,19 +11,21 @@ Certlab is a public repository on a personal GitHub account. Anyone can read it,
 
 ## Review of changes to `main`
 
-The `protect-main` ruleset applies to `main` and requires:
+The `protect-main` ruleset applies to `main`.
 
-- A pull request with at least one approval from a Code Owner (`.github/CODEOWNERS` assigns every path to `@jlucasgaspar`, including the file itself and `.github/`).
-- Approval of the latest push: a new commit after the approval dismisses it.
-- Every review conversation resolved.
-- The eight required checks from [ci.md](ci.md), with the branch up to date.
-- Merge commits as the only merge method, no force pushes and no branch deletion.
+**Current settings:** pull request required, all review conversations resolved, the eight required checks from [ci.md](ci.md) with the branch up to date, merge commits only, no force pushes and no branch deletion. Required approvals are still **zero**, and there is no bypass actor.
+
+**Pending (applied after the LAB-18 pull request is merged; update this page and [ci.md](ci.md) when it is done):**
+
+- At least one approval from a Code Owner (`.github/CODEOWNERS` assigns every path to `@jlucasgaspar`, including the file itself and `.github/`).
+- A new commit after the approval dismisses it, and the latest push must be approved.
+- The maintainer bypass described below.
 
 ### Accepted deviation: maintainer bypass
 
 GitHub does not let an author approve their own pull request, and the maintainer is both the only Code Owner and the author of every pull request. Requiring approval without an exception would block all merges.
 
-Decision (2026-11-27): the repository **admin role** is a bypass actor of the ruleset in `pull_request` mode, so the maintainer can merge a pull request that has no approval. This weakens the "every change is approved by a human other than the author" control from [ADR-0008](adr/0008-ai-first-guardrails.md) to "the maintainer reviews and merges every pull request". Checks, conversation resolution and the other rules still apply to bypassing merges as far as GitHub allows.
+Decision (2026-11-27), applied together with the pending settings above: the repository **admin role** is a bypass actor of the ruleset in `pull_request` mode, so the maintainer can merge a pull request that has no approval. This weakens the "every change is approved by a human other than the author" control from [ADR-0008](adr/0008-ai-first-guardrails.md) to "the maintainer reviews and merges every pull request". Checks, conversation resolution and the other rules still apply to bypassing merges as far as GitHub allows.
 
 Rules for using it:
 
@@ -63,11 +65,14 @@ There are no Actions variables.
 
 ### Rotating or revoking `DISCORD_WEBHOOK_URL`
 
-1. In Discord, open the channel settings, then **Integrations → Webhooks**, and delete the webhook (this revokes the old URL) or create a new one.
-2. Store the new URL with `gh secret set DISCORD_WEBHOOK_URL`, pasting it at the prompt so it stays out of shell history.
-3. Open a pull request and confirm that the notification arrives and the workflow log shows no URL.
+If the URL may have leaked (pasted in chat, an issue, a log or anywhere public), revoke it first. Deleting the webhook is what invalidates the old URL.
 
-Rotate immediately if the URL was pasted anywhere public or shared (chat, issue, log). Do not rotate only to produce evidence.
+1. In Discord, open the channel settings, then **Integrations → Webhooks**, and **delete** the old webhook.
+2. Create a new webhook in the same channel.
+3. Store the new URL with `gh secret set DISCORD_WEBHOOK_URL`, pasting it at the prompt so it stays out of shell history.
+4. Open a pull request and confirm that the notification arrives and the workflow log shows no URL.
+
+For a routine rotation without suspected exposure, create the new webhook and update the secret first, then delete the old webhook once the new one is confirmed. Do not rotate only to produce evidence.
 
 ## Periodic review
 
