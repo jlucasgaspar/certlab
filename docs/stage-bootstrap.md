@@ -24,7 +24,7 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
   - `CertlabReadOnly` for everyday inspection (`ReadOnlyAccess`).
   - `CertlabTechLead` for operating stage resources (`PowerUserAccess`: everything except IAM, Organizations and account management).
   - `CertlabAdministrator` for administrative changes and bootstrap (`AdministratorAccess`).
-- Billing information must be enabled for IAM and Identity Center roles in the management account settings, so the owner can open Billing and Budgets in a temporary session.
+- The owner must be able to open Billing and Budgets in a temporary session. If it cannot, enable billing access for IAM and Identity Center roles in the management account settings.
 - Access to `certlab-prod` is decided in phase 3 with the same model: `Owners` keep `CertlabAdministrator` for emergencies, the tech lead gets `CertlabReadOnly`, and no human gets write access without a recorded decision.
 - The management account root user has MFA and no access keys. It is reserved for recovery and for tasks that only root can do. Its e-mail is the Certlab project e-mail, never a personal one.
 - The Terraform steps that create IAM roles and policies (state backend, OIDC) run in an owner session. The tech lead identity cannot create them.
@@ -38,12 +38,12 @@ Agents do not create, change or delete external resources. The maintainer runs t
 
 ## Budget
 
-A monthly AWS Cost Budget of USD 10 applies to stage, with alerts on:
+A monthly AWS Cost Budget of USD 10 (`certlab-stage-monthly`) applies to the whole Organization, with no account filter. The management account runs no workloads, so the cost is the stage cost. It alerts and does not block spending. The alerts are:
 
 - actual spend at 50%, 80% and 100%;
 - forecasted spend at 100%.
 
-Notifications go to a private recipient. The maintainer confirms receipt of a test or first alert and records only that confirmation (date and outcome) in the pull request or issue, never the address.
+Notifications go to private recipients (the project e-mail and the maintainer). The maintainer confirms receipt of a test or first alert and records only that confirmation (date and outcome) in the pull request or issue, never the address.
 
 ## Region and database parameters
 

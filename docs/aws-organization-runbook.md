@@ -14,6 +14,7 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 
 - LAB-20 is done and [stage-bootstrap.md](stage-bootstrap.md) is merged.
 - A password manager holds the private values listed below. Create the entries before the steps that need them.
+- A payment method is ready. AWS Organizations needs a Paid plan account, so the Free plan credits do not apply and spend limits no longer cap the bill. The budget in step 8 only alerts, it does not block spending.
 - A hardware key or an authenticator app is ready for MFA. Register at least two MFA devices for the root user of the management account.
 
 Private values the maintainer stores (never published):
@@ -21,8 +22,9 @@ Private values the maintainer stores (never published):
 | Role | Used in |
 |---|---|
 | Management account root e-mail and password | Step 1 |
-| Management account root MFA devices and recovery data | Step 7 |
+| Management account root MFA devices and recovery data | Step 4 |
 | `certlab-stage` account e-mail alias | Step 5 |
+| AWS access portal URL | Steps 3 and 7 |
 | Identity Center e-mails for `certlab-owner` and `joselucas` | Step 3 |
 | Budget alert recipient e-mail | Step 8 |
 
@@ -48,7 +50,7 @@ Done when: the Organization shows one account (management) and one OU, `Workload
 
 ### 3. IAM Identity Center
 
-1. In `us-east-1`, enable IAM Identity Center with an **organization instance**.
+1. Switch the console to `us-east-1` and check that the page shows `US East (N. Virginia)` before you continue. The AWS onboarding may suggest another region (for example `us-east-2`). The primary region of the instance cannot be changed later. Enable IAM Identity Center as a **single-Region instance** tied to the Organization, with the default settings and permission sets enabled.
 2. Create two users and two groups in the Identity Center directory:
    - User `certlab-owner`, with the Certlab project e-mail, in group `Owners`.
    - User `joselucas`, the tech lead, with the maintainer's personal e-mail, in group `TechLeads`.
@@ -59,7 +61,9 @@ Done when: the Organization shows one account (management) and one OU, `Workload
    - `CertlabAdministrator`: AWS managed policy `AdministratorAccess`. Bootstrap and administrative changes only.
 5. Keep the session duration short: 1 hour for `CertlabAdministrator`, 4 hours for `CertlabTechLead` and up to 8 hours for `CertlabReadOnly`.
 
-Done when: both users and both groups exist, MFA is required, and the three permission sets exist.
+6. Assign group `Owners` to `certlab-admin` with `CertlabAdministrator` and `CertlabReadOnly`. Sign in to the AWS access portal as `certlab-owner` (the portal URL is in the Identity Center dashboard). From here on, use this session for every step except step 4, because the root user cannot use features such as root sessions.
+
+Done when: both users and both groups exist, MFA is required, the three permission sets exist and `certlab-owner` can open `certlab-admin` from the portal.
 
 ### 4. Management account root
 
@@ -72,13 +76,15 @@ Done when: root MFA is tested and there are zero root access keys.
 
 ### 5. Member account `certlab-stage`
 
-1. In Organizations, create the member account named `certlab-stage` with a private, exclusive e-mail alias that is not used by any other AWS account.
+1. In Organizations, create the member account named `certlab-stage` with a private, exclusive e-mail alias that is not used by any other AWS account. A plus alias of the project e-mail works, and the mail arrives in the same inbox.
 2. Move it to the `Workloads` OU.
 3. Do not create `certlab-prod`, Security Tooling, Log Archive or other accounts.
 
 Done when: `certlab-stage` is `ACTIVE` inside `Workloads` and is the only member account.
 
 ### 6. Centralized root access
+
+Do this as `certlab-owner` with `CertlabAdministrator`. The root user of the management account gets "RootSession may not be assumed by root accounts".
 
 1. In IAM, under Root access management, enable **root credentials management** and **privileged root actions in member accounts** for the Organization.
 2. Delete the persistent root credentials of `certlab-stage` (password, access keys, MFA, signing certificates) through centralized root access.
@@ -88,10 +94,10 @@ Done when: centralized root access is enabled and `certlab-stage` has no persist
 
 ### 7. Assign access and test sign-in
 
-1. Assign group `Owners` to `certlab-admin` and to `certlab-stage` with `CertlabAdministrator` and `CertlabReadOnly`. The read-only set is for everyday inspection and for the verification below.
+1. Assign group `Owners` to `certlab-stage` with `CertlabAdministrator` and `CertlabReadOnly`. The read-only set is for everyday inspection and for the verification below. The assignment to `certlab-admin` was made in step 3.
 2. Assign group `TechLeads` to `certlab-stage` with `CertlabTechLead` and `CertlabReadOnly`. Do not assign it to `certlab-admin`.
-3. In the `certlab-admin` account settings, enable **IAM user and role access to Billing information**. Without it, Identity Center sessions cannot open Billing or Budgets.
-4. Sign in to the AWS access portal with MFA as `certlab-owner`. Confirm it lists `certlab-admin` and `certlab-stage`, and that `certlab-admin` opens Organizations and Billing.
+3. Sign in to the AWS access portal with MFA as `certlab-owner`. Confirm it lists `certlab-admin` and `certlab-stage`, and that `certlab-admin` opens Organizations, Billing and Budgets. If Billing or Budgets does not open in an Identity Center session, sign in as root and enable **IAM user and role access to Billing information** in the account settings, then sign in again.
+4. Confirm the portal shows both permission sets for each account the group has.
 5. Sign in as `joselucas`. Confirm the portal lists only `certlab-stage`.
 6. As `joselucas`, open `certlab-stage` with `CertlabTechLead` and confirm it can create a resource but cannot change IAM.
 7. As `joselucas`, open `certlab-stage` with `CertlabReadOnly` and confirm it can read but not change a resource.
@@ -101,12 +107,12 @@ Done when: every assignment in the table in [Read-only verification](#read-only-
 
 ### 8. Cost budget
 
-In the management account, under Billing and Cost Management:
+Do this as `certlab-owner` in `certlab-admin`, under Billing and Cost Management, Budgets:
 
-1. Create a **monthly cost budget** of exactly **USD 10**, filtered to the stage account when the filter applies.
-2. Add alerts on actual spend at 50%, 80% and 100%, and on forecasted spend at 100%.
-3. Add the private recipient e-mail to every alert.
-4. Complete the recipient confirmation until the recipient is active. A pending or inactive recipient does not satisfy the acceptance criteria.
+1. Create a **monthly cost budget** named `certlab-stage-monthly` of exactly **USD 10**, recurring, fixed, for all AWS services. Do not add an account filter: the budget covers the whole Organization, and the management account runs no workloads, so the cost is the stage cost.
+2. Add four alerts: actual spend at 50%, 80% and 100%, and forecasted spend at 100%.
+3. Add the private recipient e-mails to every alert. The field takes a comma-separated list of up to 10 addresses. Leave SNS and Chatbot off.
+4. Complete any recipient confirmation the console shows until the recipient is active. A pending or inactive recipient does not satisfy the acceptance criteria. The chart preview may show a data error on a new account. It does not block creation.
 5. Record only the date and the outcome of the first alert or test notification (received or not received).
 
 Done when: the budget shows the four alerts and the recipient is active.
@@ -146,9 +152,14 @@ aws iam get-account-summary --query 'SummaryMap.[AccountMFAEnabled,AccountAccess
 # Centralized root access is enabled for the Organization.
 aws iam list-organizations-features
 
-# Budget: type, period, limit and the four alerts (do not print subscribers).
-aws budgets describe-budgets --account-id "$(aws sts get-caller-identity --query Account --output text)" \
+# Budget: type, period and limit (do not print subscribers).
+ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
+aws budgets describe-budgets --account-id "$ACCOUNT" \
   --query 'Budgets[].[BudgetName,TimeUnit,BudgetLimit.Amount,BudgetLimit.Unit]' --output text
+
+# Budget alerts: four notifications (actual 50/80/100 and forecasted 100).
+aws budgets describe-notifications-for-budget --account-id "$ACCOUNT" --budget-name certlab-stage-monthly \
+  --query 'Notifications[].[NotificationType,Threshold]' --output text
 ```
 
 Expected result:
@@ -162,8 +173,9 @@ Expected result:
 | Permission sets | `CertlabReadOnly`, `CertlabTechLead`, `CertlabAdministrator`, with the session durations above |
 | Assignments | Group `Owners`: `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and `certlab-stage`. Group `TechLeads`: `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, nothing on `certlab-admin` |
 | Root MFA / access keys | MFA enabled, 0 keys |
-| Organizations features | root credentials management and root sessions enabled |
-| Budget | monthly, 10 USD, alerts 50/80/100% actual and 100% forecasted |
+| Organizations features | `RootCredentialsManagement` and `RootSessions` |
+| Budget | `certlab-stage-monthly`, monthly, 10 USD |
+| Budget alerts | `ACTUAL` 50, 80 and 100; `FORECASTED` 100 |
 
 The calls cannot prove everything. The maintainer confirms by console or by a received alert: the active state of the budget recipient, the tested root MFA sign-in, the absence of persistent root credentials in `certlab-stage` and the sign-in with both permission sets. Any divergence blocks closing the issue.
 
@@ -197,4 +209,4 @@ Record the date and the outcome of each review here or in the issue that perform
 
 | Date | Result |
 |---|---|
-| _pending_ | The maintainer ran the steps and the read-only verification passed. |
+| 2026-11-27 | The maintainer ran steps 1 to 8. The read-only verification passed: Organization, OU, accounts, Identity Center, permission sets, root MFA and access keys, centralized root access, and the budget with its four alerts. The maintainer confirmed in the console that `certlab-stage` has no root credentials and that both users sign in with the expected access. The budget recipient state is not exposed by the API and awaits the maintainer's confirmation. |
