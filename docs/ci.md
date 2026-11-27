@@ -18,7 +18,7 @@ CI is the definitive quality gate (see [ADR-0008](adr/0008-ai-first-guardrails.m
 | `Dependency audit`    | `pnpm audit --audit-level=high`                                           |
 | `Terraform`           | `scripts/validate-terraform.sh` with a pinned, checksum-verified Terraform |
 
-The first eight jobs are the required status checks of `main`. The `Terraform` job runs on every pull request, and it becomes required when the maintainer adds it to the `protect-main` ruleset and to the classic rule. Until then it is informative. It validates the code without AWS credentials and never runs `plan` or `apply`.
+All nine jobs are required status checks of `main`. The `Terraform` job validates the Terraform code without AWS credentials and never runs `plan` or `apply`.
 
 The job names are the required status checks of `main`. Renaming a job requires updating the branch protection at the same time.
 
@@ -29,7 +29,7 @@ Pull requests are merged with a merge commit, so no commit is rewritten and ever
 The `main` branch is protected with these rules. They are applied in the GitHub repository settings, as the `protect-main` ruleset and as a classic branch protection rule (they are not versioned in code), so update this section whenever the settings change:
 
 - Pull request required; no direct pushes, no force pushes and no branch deletion.
-- All eight checks above must pass, and the branch must be up to date with `main`.
+- All nine checks above must pass, and the branch must be up to date with `main`.
 - All conversations must be resolved.
 - At least one approval from a Code Owner (`.github/CODEOWNERS`), and a new push after the approval dismisses it.
 - Merge commits are the only enabled merge method, so linear history is not required.
