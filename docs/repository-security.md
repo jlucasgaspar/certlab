@@ -13,19 +13,20 @@ Certlab is a public repository on a personal GitHub account. Anyone can read it,
 
 The `protect-main` ruleset applies to `main`.
 
-**Current settings:** pull request required, all review conversations resolved, the eight required checks from [ci.md](ci.md) with the branch up to date, merge commits only, no force pushes and no branch deletion. Required approvals are still **zero**, and there is no bypass actor.
+Settings (applied 2026-11-27):
 
-**Pending (applied after the LAB-18 pull request is merged; update this page and [ci.md](ci.md) when it is done):**
-
-- At least one approval from a Code Owner (`.github/CODEOWNERS` assigns every path to `@jlucasgaspar`, including the file itself and `.github/`).
+- Pull request required, with at least one approval from a Code Owner. `.github/CODEOWNERS` assigns every path to `@jlucasgaspar`, including the file itself and `.github/`.
 - A new commit after the approval dismisses it, and the latest push must be approved.
-- The maintainer bypass described below.
+- All review conversations resolved.
+- The eight required checks from [ci.md](ci.md), with the branch up to date.
+- Merge commits only, no force pushes and no branch deletion.
+- One bypass actor: the repository admin role, in `pull_request` mode (see below).
 
 ### Accepted deviation: maintainer bypass
 
 GitHub does not let an author approve their own pull request, and the maintainer is both the only Code Owner and the author of every pull request. Requiring approval without an exception would block all merges.
 
-Decision (2026-11-27), applied together with the pending settings above: the repository **admin role** is a bypass actor of the ruleset in `pull_request` mode, so the maintainer can merge a pull request that has no approval. This weakens the "every change is approved by a human other than the author" control from [ADR-0008](adr/0008-ai-first-guardrails.md) to "the maintainer reviews and merges every pull request". Checks, conversation resolution and the other rules still apply to bypassing merges as far as GitHub allows.
+Decision (2026-11-27), the repository **admin role** is a bypass actor of the ruleset in `pull_request` mode, so the maintainer can merge a pull request that has no approval. This weakens the "every change is approved by a human other than the author" control from [ADR-0008](adr/0008-ai-first-guardrails.md) to "the maintainer reviews and merges every pull request". Checks, conversation resolution and the other rules still apply to bypassing merges as far as GitHub allows.
 
 Rules for using it:
 

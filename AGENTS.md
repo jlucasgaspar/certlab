@@ -66,7 +66,7 @@ See `README.md` for setup and commands, `docs/vision.md` for the product vision,
 
 ## Agent limits
 
-- `main` gets a Code Owner approval rule that the maintainer can bypass as repository admin (see `docs/repository-security.md`). Agents never merge and never use that bypass.
+- `main` requires a Code Owner approval that the maintainer can bypass as repository admin (see `docs/repository-security.md`). Agents never merge and never use that bypass.
 - Never skip hooks (`--no-verify`), bypass branch protection, or merge with administrator privileges to get a change through. Fix the failing check instead.
 - Never push directly to `main`. All changes go through a pull request that CI accepts.
 - Do not run destructive Git commands (force push, hard reset, branch deletion) unless a maintainer asks for them.
