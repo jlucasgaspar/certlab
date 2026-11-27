@@ -77,7 +77,7 @@ Terraform sets these through the provider's default tags.
 - The initial Neon credentials stay in the maintainer's private storage, never in the repository or in GitHub.
 - In phase 1.4, create separate runtime and migration roles and store their connection URLs in SSM Parameter Store as `SecureString`. They do not go in GitHub secrets.
 - Secrets Manager is reserved for when automatic rotation, production controls or cross-account access justify its cost and complexity.
-- If Terraform provisions secret values in the future, use write-only arguments such as `value_wo` (Terraform 1.11 or later) so plaintext is not stored in the plan or state.
+- If Terraform provisions secret values in the future, use write-only arguments such as `value_wo` (Terraform 1.11 or later) fed by an `ephemeral` input variable or ephemeral resource. A write-only argument alone keeps the value out of state, but a non-ephemeral input can still be stored in a saved plan.
 
 ## Private identifiers
 
