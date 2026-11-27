@@ -16,3 +16,21 @@ dist/
 .turbo/
 coverage/
 *.tsbuildinfo
+
+# Terraform: state, plans, caches and private local configuration
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.local.tfvars
+*.local.hcl
+*.auto.tfvars
+*.auto.tfvars.json
+infra/bootstrap/*/backend.tf

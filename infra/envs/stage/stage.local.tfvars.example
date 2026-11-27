@@ -1,0 +1,2 @@
+# Copy to stage.local.tfvars (ignored by Git) and replace the placeholder.
+allowed_account_id = "000000000000"
