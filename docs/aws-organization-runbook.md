@@ -116,6 +116,9 @@ Done when: the budget shows the four alerts and the recipient is active.
 The agent runs only read-only calls. Use an untracked local AWS profile that signs in through Identity Center as `certlab-owner` with `CertlabReadOnly` on `certlab-admin`, which is the only identity that can read the Organization. Do not commit or paste profile names, account IDs or raw output. Reduce each result to a pass or fail line before reporting it.
 
 ```sh
+# Identity Center lives in us-east-1. Without this, sso-admin calls return no instances.
+export AWS_REGION=us-east-1
+
 # Organization exists, all features enabled (do not paste the raw output: it contains IDs and e-mail).
 aws organizations describe-organization --query 'Organization.FeatureSet'
 
