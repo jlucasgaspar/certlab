@@ -7,7 +7,7 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 ## AWS accounts
 
 - A Certlab-controlled AWS Organization holds the accounts.
-- The **management account** is used only for AWS Organizations, billing, AWS Budgets and IAM Identity Center. No Certlab workload runs in it.
+- The **management account**, named `certlab-admin`, is used only for AWS Organizations, billing, AWS Budgets and IAM Identity Center. No Certlab workload runs in it.
 - The organizational unit `Workloads` contains the member account `certlab-stage`.
 - `certlab-prod` is deferred to phase 3. Security Tooling, Log Archive, Control Tower and a corporate landing zone are out of scope.
 - The maintainer's personal AWS account stays outside the Organization. Human access never relies on it.
@@ -15,24 +15,35 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 ## Human access and root
 
 - Humans sign in through IAM Identity Center with temporary sessions and MFA. No long-lived access keys exist for people or workloads.
-- Two permission sets are defined: `CertlabReadOnly` for everyday inspection and `CertlabAdministrator` for administrative changes and bootstrap.
-- The management account root user has MFA and no access keys.
+- The project owner and the tech lead are separate Identity Center identities. Permission sets are assigned to groups, never to individual users, so a future team member only needs to join a group:
+  - Group `Owners` holds `certlab-owner`, backed by the Certlab project e-mail. It has `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and on `certlab-stage`, uses the read-only set for everyday inspection and verification, and makes every IAM, Organizations, billing and permission change.
+  - Group `TechLeads` holds the maintainer's tech lead user (`joselucas`), backed by the maintainer's personal e-mail. It has `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, and no access to `certlab-admin`. It cannot manage IAM users, roles or policies, Organizations, account settings or the billing of the management account. `PowerUserAccess` still lets it create service-linked roles and does not deny budgets or Savings Plans inside `certlab-stage`, so it is a trusted role and not a hard boundary.
+  - Groups for other roles, such as a read-only developer group, are created when a person needs them.
+- Humans do not create resources as the normal flow. Terraform creates them through CI (see [Terraform state and CI identity](#terraform-state-and-ci-identity)). Console changes by the tech lead in stage are allowed for exploration, and anything created by hand is either imported into Terraform or removed. Production is read-only for humans.
+- Three permission sets are defined:
+  - `CertlabReadOnly` for everyday inspection (`ReadOnlyAccess`).
+  - `CertlabTechLead` for operating stage resources (`PowerUserAccess`: everything except IAM, Organizations and account management, apart from service-linked roles).
+  - `CertlabAdministrator` for administrative changes and bootstrap (`AdministratorAccess`).
+- The owner must be able to open Billing and Budgets in a temporary session. If it cannot, enable billing access for IAM and Identity Center roles in the management account settings.
+- Access to `certlab-prod` is decided in phase 3 with the same model: `Owners` keep `CertlabAdministrator` for emergencies, the tech lead gets `CertlabReadOnly`, and no human gets write access without a recorded decision.
+- The management account root user has MFA and no access keys. It is reserved for recovery and for tasks that only root can do. Its e-mail is the Certlab project e-mail, never a personal one.
+- The Terraform steps that create IAM roles and policies (state backend, OIDC) run in an owner session. The tech lead identity cannot create them.
 - Centralized root access is enabled for member accounts, and persistent root credentials are removed from them.
 
 ## Manual governance
 
 The Organization, Identity Center, the OU, the member account, assignments, centralized root access and the budget are created manually in the console. They are not managed by the public application Terraform. Workloads in `certlab-stage` are managed by Terraform.
 
-Agents do not create, change or delete external resources. The maintainer runs the manual steps, and agents verify read-only.
+Agents do not create, change or delete external resources. The maintainer runs the manual steps, and agents verify read-only. The ordered procedure, the read-only checks, recovery and the periodic review are in [aws-organization-runbook.md](aws-organization-runbook.md).
 
 ## Budget
 
-A monthly AWS Cost Budget of USD 10 applies to stage, with alerts on:
+A monthly AWS Cost Budget of USD 10 (`certlab-stage-monthly`) applies to the whole Organization, with no account filter. The management account runs no workloads, so the cost is the stage cost. It alerts and does not block spending. The alerts are:
 
 - actual spend at 50%, 80% and 100%;
 - forecasted spend at 100%.
 
-Notifications go to a private recipient. The maintainer confirms receipt of a test or first alert and records only that confirmation (date and outcome) in the pull request or issue, never the address.
+Notifications go to private recipients (the project e-mail and the maintainer). The maintainer confirms receipt of a test or first alert and records only that confirmation (date and outcome) in the pull request or issue, never the address.
 
 ## Region and database parameters
 
