@@ -15,9 +15,17 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 ## Human access and root
 
 - Humans sign in through IAM Identity Center with temporary sessions and MFA. No long-lived access keys exist for people or workloads.
-- Two permission sets are defined: `CertlabReadOnly` for everyday inspection and `CertlabAdministrator` for administrative changes and bootstrap.
-- `CertlabAdministrator` is also assigned to the management account, so governance, billing and budget work uses a temporary session and not the root user. `CertlabReadOnly` is assigned only to `certlab-stage`. Billing information must be enabled for IAM and Identity Center roles in the management account settings.
-- The management account root user has MFA and no access keys. It is reserved for recovery and for tasks that only root can do.
+- Two Identity Center identities exist, so the project owner and the tech lead are separate:
+  - `certlab-owner` is the Certlab owner identity, backed by the Certlab project e-mail. It holds `CertlabAdministrator` on the management account and on `certlab-stage`, and makes every IAM, Organizations, billing and permission change.
+  - `joselucas` is the tech lead identity, backed by the maintainer's personal e-mail. It holds `CertlabTechLead` on `certlab-stage` and `CertlabReadOnly` on the management account and on `certlab-stage`. It cannot change IAM, Organizations or billing.
+- Three permission sets are defined:
+  - `CertlabReadOnly` for everyday inspection (`ReadOnlyAccess`).
+  - `CertlabTechLead` for operating stage resources (`PowerUserAccess`: everything except IAM, Organizations and account management).
+  - `CertlabAdministrator` for administrative changes and bootstrap (`AdministratorAccess`).
+- Billing information must be enabled for IAM and Identity Center roles in the management account settings, so the owner can open Billing and Budgets in a temporary session.
+- Access to `certlab-prod` is decided in phase 3 with the same model: read-only by default and no tech lead write access without a recorded decision.
+- The management account root user has MFA and no access keys. It is reserved for recovery and for tasks that only root can do. Its e-mail is the Certlab project e-mail, never a personal one.
+- The Terraform steps that create IAM roles and policies (state backend, OIDC) run in an owner session. The tech lead identity cannot create them.
 - Centralized root access is enabled for member accounts, and persistent root credentials are removed from them.
 
 ## Manual governance
