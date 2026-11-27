@@ -85,12 +85,15 @@ Done when: centralized root access is enabled and `certlab-stage` has no persist
 ### 7. Assign access and test sign-in
 
 1. Assign the maintainer's user to `certlab-stage` with both `CertlabReadOnly` and `CertlabAdministrator`.
-2. Sign in to the AWS access portal with MFA.
-3. Open `certlab-stage` with `CertlabReadOnly` and confirm it can read but not change a resource.
-4. Open `certlab-stage` with `CertlabAdministrator` and confirm the session is temporary and administrative.
-5. Share only the sanitized result ("both permission sets issued temporary credentials; read-only could not change anything"), never screenshots with IDs.
+2. Assign the maintainer's user to the **management account** with `CertlabAdministrator` only. This lets governance, billing and budget work run in a temporary session, so the root user stays reserved for recovery.
+3. In the management account's account settings, enable **IAM user and role access to Billing information**. Without it, Identity Center sessions cannot open Billing or Budgets.
+4. Sign in to the AWS access portal with MFA.
+5. Open `certlab-stage` with `CertlabReadOnly` and confirm it can read but not change a resource.
+6. Open `certlab-stage` with `CertlabAdministrator` and confirm the session is temporary and administrative.
+7. Open the management account with `CertlabAdministrator` and confirm it can open Organizations and Billing.
+8. Share only the sanitized result ("both permission sets issued temporary credentials; read-only could not change anything"), never screenshots with IDs.
 
-Done when: both permission sets work and show the documented separation.
+Done when: both permission sets work in `certlab-stage`, `CertlabAdministrator` works in the management account, and the separation is as documented.
 
 ### 8. Cost budget
 
@@ -150,6 +153,7 @@ Expected result:
 | Accounts | the management account and `certlab-stage` (`ACTIVE`), nothing else |
 | Identity Center instances | 1 |
 | Permission sets | `CertlabReadOnly`, `CertlabAdministrator`, with the session durations above |
+| Assignments | `CertlabReadOnly` and `CertlabAdministrator` on `certlab-stage`; `CertlabAdministrator` only on the management account |
 | Root MFA / access keys | MFA enabled, 0 keys |
 | Organizations features | root credentials management and root sessions enabled |
 | Budget | monthly, 10 USD, alerts 50/80/100% actual and 100% forecasted |
@@ -173,7 +177,7 @@ Use the root user of the management account only for tasks that require it, such
 
 Review quarterly and after any access change:
 
-- Identity Center users and assignments match the people who need access, and `CertlabAdministrator` is assigned only where needed.
+- Identity Center users and assignments match the people who need access, and `CertlabAdministrator` is assigned only to `certlab-stage` and the management account.
 - Root MFA devices work, and there are still zero root access keys.
 - `certlab-stage` has no persistent root credentials.
 - The budget exists with the approved values and the recipient is active.

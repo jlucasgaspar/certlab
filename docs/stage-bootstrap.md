@@ -16,7 +16,8 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 
 - Humans sign in through IAM Identity Center with temporary sessions and MFA. No long-lived access keys exist for people or workloads.
 - Two permission sets are defined: `CertlabReadOnly` for everyday inspection and `CertlabAdministrator` for administrative changes and bootstrap.
-- The management account root user has MFA and no access keys.
+- `CertlabAdministrator` is also assigned to the management account, so governance, billing and budget work uses a temporary session and not the root user. `CertlabReadOnly` is assigned only to `certlab-stage`. Billing information must be enabled for IAM and Identity Center roles in the management account settings.
+- The management account root user has MFA and no access keys. It is reserved for recovery and for tasks that only root can do.
 - Centralized root access is enabled for member accounts, and persistent root credentials are removed from them.
 
 ## Manual governance
