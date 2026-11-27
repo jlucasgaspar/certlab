@@ -41,6 +41,15 @@ CodeRabbit is an advisory review layer for pull requests that are not drafts and
 - Pull requests opened by Renovate are reviewed like any other. Filtering by author or label would skip whole pull requests, including changes to manifests and CI workflows, so the only exclusion is `pnpm-lock.yaml`.
 - Out of scope for now: the CodeRabbit coding agent, automatic fixes or commits, auto-merge and Verify/Security.
 
+## Discord notifications
+
+`.github/workflows/discord-pr-notifications.yml` posts to Discord when a pull request targeting `main` is opened and when it is merged. Closing without merging, and every other event, is ignored.
+
+- It uses `pull_request_target` so the job can read the `DISCORD_WEBHOOK_URL` secret on a public repository. It never checks out or runs pull request code, and it declares `permissions: {}`. Do not add a checkout step to it.
+- The webhook URL exists only as the `DISCORD_WEBHOOK_URL` GitHub Actions secret. Create an incoming webhook in the target channel and store its URL there.
+- A Discord outage or rate limit fails the `Notify Discord` job with an error annotation. The job is **not** a required status check, so it never blocks merging.
+- Out of scope: deploy, push, comment, review and CI notifications, and Discord bots.
+
 ## Dependency updates
 
 Renovate keeps dependencies current. The configuration and its schedule are documented in `renovate.json5`:
