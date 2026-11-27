@@ -1,6 +1,6 @@
 # Certlab — System Design
 
-> Status: draft · Last updated: 2026-11-26
+> Status: draft · Last updated: 2026-11-27
 > Product vision lives in [vision.md](vision.md); setup and commands live in the root [README](../README.md). Delivery plan lives in [roadmap.md](roadmap.md). Individual decisions live in [adr/](adr/README.md).
 
 This document describes how Certlab is built: the pieces, how they talk to each other, where they run and which rules every change must follow. It is the map; the ADRs are the reasoning behind each road.
@@ -212,23 +212,54 @@ Because most code will be written by AI agents, these are requirements from phas
 From phase 1:
 - HTTPS only; secure, `HttpOnly`, `SameSite` cookies for the web session; bearer tokens for the native app.
 - Passwords handled by Better Auth (hashing, reset tokens); rate limiting on auth endpoints (brute force).
-- All input validated with zod at the API edge; parameterized SQL via Drizzle only.
-- CORS restricted to known origins; security headers on CloudFront.
+- All input validated with zod at the API edge, including size and complexity bounds; parameterized SQL via Drizzle only. Dynamic raw SQL must never contain user-controlled fragments.
+- Authorization is enforced server-side for every resource and action; identifiers supplied by a client never establish ownership. Tests cover cross-user access and mass-assignment boundaries.
+- React escapes text by default. Rendering raw HTML is prohibited unless a reviewed feature requires it and sanitizes it; rendered Markdown or code must not permit active content. A restrictive Content Security Policy and the other relevant browser security headers are set at CloudFront.
+- CORS is restricted to known origins. Cookie-authenticated mutations have explicit CSRF protection appropriate to the chosen auth flow; `SameSite` is defense in depth, not the only control.
+- Authentication and public endpoints have route-specific rate limits. Request-body limits, timeouts and bounded work per request prevent inexpensive malicious inputs from creating unbounded database or compute work.
 - Least-privilege IAM per Lambda / service; secrets only in Parameter Store, never in the repo or in CI logs.
-- Account deletion that actually deletes personal data.
+- Logs and telemetry exclude passwords, tokens, full authorization headers, submitted answers where unnecessary and other personal data not required for an operational purpose.
+- Account deletion actually deletes or irreversibly anonymizes personal data according to the documented lifecycle, subject only to explicit and narrowly justified retention exceptions.
 
-Hardened in phase 5: WAF rules, per-user and per-IP API rate limits, OWASP review, dependency and container scanning, penetration-style review of auth flows.
+Before public production and hardened again in phase 5:
+- Maintain a lightweight threat model covering trust boundaries and OWASP web/API risks, especially broken object authorization, auth/recovery abuse, XSS/script injection, SQL injection, CSRF and SSRF if outbound fetching is introduced.
+- Use API Gateway/CloudFront protections, per-user and per-IP rate and concurrency limits, payload/time bounds, cost alarms and runbooks to mitigate abuse and DDoS. Record the WAF threat/cost decision before public production, enable it when warranted, and revisit the decision as exposure changes. These controls reduce impact; they do not claim to make DDoS impossible.
+- Run dependency, secret and container scanning, and penetration-style reviews of authentication, account recovery, authorization and deletion flows.
+- Native credentials use platform secure storage and never general-purpose app storage.
+
+Prompt injection is not an MVP runtime attack surface because the MVP does not send user-controlled content to an LLM. It becomes a release gate for every AI feature: user and retrieved content are untrusted data, cannot override system policy, and cannot directly authorize tools or data access. AI services use least-privilege identities, scoped retrieval, output encoding, data-loss and cost controls, audit logs, and adversarial evaluations for prompt injection, retrieval poisoning, sensitive-data disclosure, unsafe rendering and tool abuse.
 
 ---
 
-## 9. Observability
+## 9. Data privacy and lifecycle
+
+Privacy is an engineering constraint from the first stored account, not store-submission paperwork. The exact LGPD legal bases, retention durations, controller details, vendor terms and cross-border transfer safeguards require a documented product/legal decision before public launch; implementation tickets must not invent them.
+
+From phase 1:
+- Keep a versioned inventory of personal data collected by auth, profiles, learning events, logs, cookies and third-party SDKs. For each class record its purpose, sensitivity, access, system of record, recipients, proposed legal basis, retention rule and deletion behavior.
+- Apply data minimization and purpose limitation. A future analytics or AI use does not by itself justify indefinite retention of raw learning history.
+- Maintain a retention schedule implemented through database expiry, scheduled deletion or irreversible anonymization jobs as appropriate. It covers short-lived sessions and reset tokens, learning events such as `answer_attempt`, logs, caches, exports and backup expiration; "keep forever" requires an explicit justification.
+- Account deletion covers primary and derived records and prevents orphaned identifiers from re-identifying a person. Copies in immutable backups expire within the documented window and are not silently restored as active user data.
+- Start with strictly necessary cookies/storage only. Non-essential analytics, advertising or tracking SDKs require an updated inventory and, where applicable, prior consent that is recorded, withdrawable and honored before loading. A banner is not added when there is nothing optional to consent to.
+- Privacy notices and consent surfaces use the same supported locales as the product and remain accessible from sign-up and settings.
+
+Before public production and native store submission:
+- Public policy text, in-product behavior, vendor contracts, store privacy labels/data-safety forms and the data inventory must agree.
+- A verified process handles applicable data-subject rights without disclosing data to an impostor, and records the request and outcome without duplicating the requested personal data in logs.
+- Hosting, authentication, email, observability, push and analytics providers are recorded as processors or recipients as applicable, including where data is processed and the approved transfer safeguard.
+- The incident-response playbook includes personal-data breach assessment, evidence preservation, responsible owners and the decision path for regulator and affected-person notifications.
+- Automated retention and deletion jobs, backup expiry and the complete account-deletion path are tested before launch and periodically thereafter.
+
+---
+
+## 10. Observability
 
 - Phase 1: structured JSON logs (pino) with request id, user id (when known), route, latency and status; CloudWatch Logs with short retention in stage to keep cost down; uncaught errors alarmed.
 - Phase 5: OpenTelemetry traces and metrics, dashboards (latency, error rate, sign-ups, lab completions), alerting, frontend error tracking.
 
 ---
 
-## 10. Learning engine
+## 11. Learning engine
 
 MVP (phase 2), deterministic rules:
 - A wrong answer re-queues the question at the end of the current lab.
@@ -241,7 +272,7 @@ Post-MVP:
 
 ---
 
-## 11. AI in the product (post-MVP)
+## 12. AI in the product (post-MVP)
 
 Kept out of the MVP on purpose, but the MVP prepares for it (answer event log, versioned questions, explanation per question, Postgres that can run `pgvector`).
 
@@ -249,11 +280,11 @@ Kept out of the MVP on purpose, but the MVP prepares for it (answer event log, v
 - **Dynamic questions** — generate variations of concepts the user struggles with, always reviewed or validated before being served.
 - **Content pipeline** — AI-assisted authoring of new questions and labs with human review.
 
-These will likely run as a separate service with its own rate limits and cost controls; that decision gets its own ADR when we get there.
+These will likely run as a separate service with its own rate limits and cost controls; that decision gets its own ADR when we get there. That ADR must also define the allowed data flows, retention, human oversight and the prompt-injection and data-exfiltration controls required by sections 8 and 9.
 
 ---
 
-## 12. Decision index
+## 13. Decision index
 
 | ADR | Decision | Status |
 |---|---|---|
@@ -267,10 +298,11 @@ These will likely run as a separate service with its own rate limits and cost co
 | [0008](adr/0008-ai-first-guardrails.md) | Guardrails from day one for AI-written code | Accepted |
 | [0009](adr/0009-content-as-code-and-answer-events.md) | Questions as code; answers as an event log | Accepted |
 
-## 13. Open questions
+## 14. Open questions
 
 - Domain name.
 - Production API runtime (Lambda vs EC2 vs Fargate) — phase 3.
 - Expo vs Capacitor — phase 4, after a spike.
 - How many labs unlock mascot levels 2–4 (from the design system's open items).
 - Source and licensing of reference material for the future RAG.
+- LGPD legal bases and retention durations per data class, controller/privacy contact details, processor terms and any cross-border transfer safeguards; all must be resolved before public production.
