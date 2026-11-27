@@ -16,6 +16,9 @@ CI is the definitive quality gate (see [ADR-0008](adr/0008-ai-first-guardrails.m
 | `Commit messages`     | commitlint over every commit of the pull request (pull requests only)     |
 | `Secret scan`         | gitleaks over the full history, from a pinned and checksum-verified build |
 | `Dependency audit`    | `pnpm audit --audit-level=high`                                           |
+| `Terraform`           | `scripts/validate-terraform.sh` with a pinned, checksum-verified Terraform |
+
+The first eight jobs are the required status checks of `main`. The `Terraform` job runs on every pull request, and it becomes required when the maintainer adds it to the `protect-main` ruleset and to the classic rule. Until then it is informative. It validates the code without AWS credentials and never runs `plan` or `apply`.
 
 The job names are the required status checks of `main`. Renaming a job requires updating the branch protection at the same time.
 
