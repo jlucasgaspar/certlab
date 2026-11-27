@@ -1,0 +1,5 @@
+# Every path is owned by the maintainer, including this file and the
+# repository automation in .github/.
+*                    @jlucasgaspar
+/.github/            @jlucasgaspar
+/.github/CODEOWNERS  @jlucasgaspar

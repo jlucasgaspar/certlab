@@ -25,11 +25,13 @@ Pull requests are merged with a merge commit, so no commit is rewritten and ever
 
 The `main` branch is protected with these rules. They are applied in the GitHub repository settings, as the `protect-main` ruleset and as a classic branch protection rule (they are not versioned in code), so update this section whenever the settings change:
 
-- Pull request required; no direct pushes, no force pushes and no branch deletion. The rules also apply to administrators.
+- Pull request required; no direct pushes, no force pushes and no branch deletion.
 - All eight checks above must pass, and the branch must be up to date with `main`.
 - All conversations must be resolved.
+- Pending, applied after the LAB-18 pull request merges: at least one approval from a Code Owner (`.github/CODEOWNERS`), and a new push after the approval dismisses it. Required approvals are zero until then.
 - Merge commits are the only enabled merge method, so linear history is not required.
-- **Required approvals: zero for now.** GitHub does not let an author approve their own pull request and there is a single maintainer. Revisit this when there is a second reviewer.
+- The classic branch protection rule keeps zero required approvals and enforces administrators. The approval requirement lives only in the ruleset, because the classic rule has no bypass.
+- **Maintainer bypass (pending with the approval rule).** GitHub does not let an author approve their own pull request, and the maintainer is the only Code Owner. The repository admin role is therefore a bypass actor in `pull_request` mode so the maintainer can merge. Agents never use it. See [repository-security.md](repository-security.md) for the reasoning, the access model, Actions settings and the secrets inventory.
 
 ## CodeRabbit
 
