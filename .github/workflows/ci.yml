@@ -99,6 +99,25 @@ jobs:
       - name: Scan history
         run: gitleaks git --redact --no-banner --verbose
 
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      # Must match infra/.terraform-version, which scripts/validate-terraform.sh checks.
+      TERRAFORM_VERSION: 1.17.2
+      TERRAFORM_SHA256: e6f16b2f0b137ee5729caa8c4e79a3bae4ee261acd198a1fcfa8584a6296605b
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Terraform
+        run: |
+          curl -sSfL -o terraform.zip \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"
+          echo "${TERRAFORM_SHA256}  terraform.zip" | sha256sum --check
+          unzip -q terraform.zip terraform
+          sudo mv terraform /usr/local/bin/terraform
+      - run: scripts/validate-terraform.sh
+
   audit:
     name: Dependency audit
     runs-on: ubuntu-latest

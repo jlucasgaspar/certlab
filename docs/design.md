@@ -69,7 +69,7 @@ certlab/
 │   ├── ui-web/       React DOM components ported from the design system
 │   └── config/       shared tsconfig, eslint, vitest presets
 ├── content/          question bank as versioned files (ADR-0009)
-├── infra/            Terraform (modules + envs/stage + envs/prod)
+├── infra/            Terraform (modules, bootstrap/stage for the state backend, envs/stage, envs/prod)
 └── docs/             design.md, roadmap.md, adr/, articles/ (dev.to drafts)
 ```
 

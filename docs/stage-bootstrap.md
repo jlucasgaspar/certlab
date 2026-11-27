@@ -77,7 +77,7 @@ Terraform sets these through the provider's default tags.
 
 ## Terraform state and CI identity
 
-- The remote state backend lives in `certlab-stage`: an S3 bucket with versioning and native state locking. No state or credentials are committed.
+- The remote state backend lives in `certlab-stage`: an S3 bucket with versioning and native state locking. No state or credentials are committed. The code, the bootstrap procedure and the recovery steps are in [infra/README.md](../infra/README.md).
 - The first `terraform apply` that creates the backend uses a temporary IAM Identity Center session with `CertlabAdministrator`. After that, the stage environment uses the remote backend, and CI reaches AWS by OIDC.
 - GitHub Actions uses the GitHub Environment `stage`. The role trust policy is limited to the exact subject `repo:jlucasgaspar/certlab:environment:stage`.
 - Pull request workflows and forks never receive AWS credentials. A stage deploy runs from reviewed code on `main`.

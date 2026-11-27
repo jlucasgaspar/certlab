@@ -1,0 +1,3 @@
+# Copy to stage.local.tfvars (ignored by Git) and replace the placeholders.
+allowed_account_id = "000000000000"
+bucket_suffix      = "replacewithprivate"
