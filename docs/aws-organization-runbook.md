@@ -35,8 +35,9 @@ Do the steps in order. After each one, record only "done" and the date in the pu
 1. Create a new AWS account controlled by Certlab, or designate one created for it. It must not be the maintainer's personal AWS account, which stays outside the Organization.
 2. Use a dedicated e-mail address that the maintainer controls long term. It receives root and billing notices.
 3. Set a long unique root password in the password manager.
+4. Name the account `certlab-admin` in the account settings (root user), so it is clearly the governance account in the access portal.
 
-Done when: the account exists and no workload will run in it.
+Done when: the account exists, is named `certlab-admin` and no workload will run in it.
 
 ### 2. Organization and `Workloads` OU
 
@@ -48,9 +49,9 @@ Done when: the Organization shows one account (management) and one OU, `Workload
 ### 3. IAM Identity Center
 
 1. In `us-east-1`, enable IAM Identity Center with an **organization instance**.
-2. Create two users in the Identity Center directory:
-   - `certlab-owner`, with the Certlab project e-mail.
-   - `joselucas`, the tech lead, with the maintainer's personal e-mail.
+2. Create two users and two groups in the Identity Center directory:
+   - User `certlab-owner`, with the Certlab project e-mail, in group `Owners`.
+   - User `joselucas`, the tech lead, with the maintainer's personal e-mail, in group `TechLeads`.
 3. Require MFA at sign-in for all users (always-on, not context-aware), with an authenticator app or security key. Register a separate MFA device entry for each user.
 4. Create the permission sets:
    - `CertlabReadOnly`: AWS managed policy `ReadOnlyAccess`. Everyday inspection.
@@ -58,7 +59,7 @@ Done when: the Organization shows one account (management) and one OU, `Workload
    - `CertlabAdministrator`: AWS managed policy `AdministratorAccess`. Bootstrap and administrative changes only.
 5. Keep the session duration short: 1 hour for `CertlabAdministrator`, 4 hours for `CertlabTechLead` and up to 8 hours for `CertlabReadOnly`.
 
-Done when: both users exist, MFA is required, and the three permission sets exist.
+Done when: both users and both groups exist, MFA is required, and the three permission sets exist.
 
 ### 4. Management account root
 
@@ -87,13 +88,14 @@ Done when: centralized root access is enabled and `certlab-stage` has no persist
 
 ### 7. Assign access and test sign-in
 
-1. Assign `certlab-owner` to the management account and to `certlab-stage` with `CertlabAdministrator`.
-2. Assign `joselucas` to `certlab-stage` with `CertlabTechLead` and `CertlabReadOnly`, and to the management account with `CertlabReadOnly` only.
-3. In the management account's account settings, enable **IAM user and role access to Billing information**. Without it, Identity Center sessions cannot open Billing or Budgets.
-4. Sign in to the AWS access portal with MFA as `certlab-owner`. Open the management account and confirm it can open Organizations and Billing.
-5. Sign in as `joselucas`. Open `certlab-stage` with `CertlabTechLead` and confirm it can create a resource but cannot change IAM.
-6. As `joselucas`, open `certlab-stage` and the management account with `CertlabReadOnly` and confirm they can read but not change a resource.
-7. Share only the sanitized result ("each permission set issued temporary credentials and the separation held"), never screenshots with IDs.
+1. Assign group `Owners` to `certlab-admin` and to `certlab-stage` with `CertlabAdministrator` and `CertlabReadOnly`. The read-only set is for everyday inspection and for the verification below.
+2. Assign group `TechLeads` to `certlab-stage` with `CertlabTechLead` and `CertlabReadOnly`. Do not assign it to `certlab-admin`.
+3. In the `certlab-admin` account settings, enable **IAM user and role access to Billing information**. Without it, Identity Center sessions cannot open Billing or Budgets.
+4. Sign in to the AWS access portal with MFA as `certlab-owner`. Confirm it lists `certlab-admin` and `certlab-stage`, and that `certlab-admin` opens Organizations and Billing.
+5. Sign in as `joselucas`. Confirm the portal lists only `certlab-stage`.
+6. As `joselucas`, open `certlab-stage` with `CertlabTechLead` and confirm it can create a resource but cannot change IAM.
+7. As `joselucas`, open `certlab-stage` with `CertlabReadOnly` and confirm it can read but not change a resource.
+8. Share only the sanitized result ("each permission set issued temporary credentials and the separation held"), never screenshots with IDs.
 
 Done when: every assignment in the table in [Read-only verification](#read-only-verification) works and shows the documented separation.
 
@@ -111,7 +113,7 @@ Done when: the budget shows the four alerts and the recipient is active.
 
 ## Read-only verification
 
-The agent runs only read-only calls. Use an untracked local AWS profile that signs in through Identity Center with `CertlabReadOnly`, or a read-only session in the management account. Do not commit or paste profile names, account IDs or raw output. Reduce each result to a pass or fail line before reporting it.
+The agent runs only read-only calls. Use an untracked local AWS profile that signs in through Identity Center as `certlab-owner` with `CertlabReadOnly` on `certlab-admin`, which is the only identity that can read the Organization. Do not commit or paste profile names, account IDs or raw output. Reduce each result to a pass or fail line before reporting it.
 
 ```sh
 # Organization exists, all features enabled (do not paste the raw output: it contains IDs and e-mail).
@@ -152,10 +154,10 @@ Expected result:
 |---|---|
 | Organization feature set | `ALL` |
 | OUs under root | `Workloads` only |
-| Accounts | the management account and `certlab-stage` (`ACTIVE`), nothing else |
+| Accounts | `certlab-admin` (management) and `certlab-stage` (`ACTIVE`), nothing else |
 | Identity Center instances | 1 |
 | Permission sets | `CertlabReadOnly`, `CertlabTechLead`, `CertlabAdministrator`, with the session durations above |
-| Assignments | `certlab-owner`: `CertlabAdministrator` on the management account and `certlab-stage`. `joselucas`: `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, `CertlabReadOnly` on the management account |
+| Assignments | Group `Owners`: `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and `certlab-stage`. Group `TechLeads`: `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, nothing on `certlab-admin` |
 | Root MFA / access keys | MFA enabled, 0 keys |
 | Organizations features | root credentials management and root sessions enabled |
 | Budget | monthly, 10 USD, alerts 50/80/100% actual and 100% forecasted |
@@ -179,7 +181,7 @@ Use the root user of the management account only for tasks that require it, such
 
 Review quarterly and after any access change:
 
-- Identity Center users and assignments match the people who need access, and `CertlabAdministrator` is assigned only to `certlab-owner`, and `CertlabTechLead` only to the tech lead on `certlab-stage`.
+- Identity Center users and assignments match the people who need access, and `CertlabAdministrator` is assigned only to group `Owners`, and `CertlabTechLead` only to group `TechLeads` on `certlab-stage`.
 - Root MFA devices work, and there are still zero root access keys.
 - `certlab-stage` has no persistent root credentials.
 - The budget exists with the approved values and the recipient is active.
