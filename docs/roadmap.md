@@ -29,7 +29,7 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 - [x] Repository hardening: Code Owner review on `main`, access and Actions least privilege, secrets inventory, `SECURITY.md` and GitHub security features, documented in `docs/repository-security.md`.
   - Delivered: `CODEOWNERS`, `SECURITY.md`, Code Owner approval rule, Actions least privilege, secrets inventory and Security features. The maintainer confirmed on 2026-11-27 that the installed GitHub Apps and the Discord webhook are in order. Known deviation: the repository admin role bypasses the approval rule so the sole maintainer can merge. Remove the bypass when a second reviewer exists (not a priority; see `docs/repository-security.md`).
 - Dropped: the shared `docs/backlog.md` handoff between implementation agents and the PM agent. The maintainer decided not to build it (2026-11-27), so deferred findings are reported in the pull request instead.
-- [ ] Phase 1.1 wrap-up: reconcile delivered work and roadmap checkboxes, update documentation and agent guidance, verify versions and quality gates, and record follow-up work.
+- [x] Phase 1.1 wrap-up: reconcile delivered work and roadmap checkboxes, update documentation and agent guidance, verify versions and quality gates, and record follow-up work.
 
 **1.2 Infrastructure bootstrap**
 - [ ] AWS account hygiene: no root usage, MFA, AWS Budgets alerts.
