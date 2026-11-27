@@ -17,12 +17,12 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 - Humans sign in through IAM Identity Center with temporary sessions and MFA. No long-lived access keys exist for people or workloads.
 - The project owner and the tech lead are separate Identity Center identities. Permission sets are assigned to groups, never to individual users, so a future team member only needs to join a group:
   - Group `Owners` holds `certlab-owner`, backed by the Certlab project e-mail. It has `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and on `certlab-stage`, uses the read-only set for everyday inspection and verification, and makes every IAM, Organizations, billing and permission change.
-  - Group `TechLeads` holds the maintainer's tech lead user (`joselucas`), backed by the maintainer's personal e-mail. It has `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, and no access to `certlab-admin`. It cannot change IAM, Organizations or billing.
+  - Group `TechLeads` holds the maintainer's tech lead user (`joselucas`), backed by the maintainer's personal e-mail. It has `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, and no access to `certlab-admin`. It cannot manage IAM users, roles or policies, Organizations, account settings or the billing of the management account. `PowerUserAccess` still lets it create service-linked roles and does not deny budgets or Savings Plans inside `certlab-stage`, so it is a trusted role and not a hard boundary.
   - Groups for other roles, such as a read-only developer group, are created when a person needs them.
 - Humans do not create resources as the normal flow. Terraform creates them through CI (see [Terraform state and CI identity](#terraform-state-and-ci-identity)). Console changes by the tech lead in stage are allowed for exploration, and anything created by hand is either imported into Terraform or removed. Production is read-only for humans.
 - Three permission sets are defined:
   - `CertlabReadOnly` for everyday inspection (`ReadOnlyAccess`).
-  - `CertlabTechLead` for operating stage resources (`PowerUserAccess`: everything except IAM, Organizations and account management).
+  - `CertlabTechLead` for operating stage resources (`PowerUserAccess`: everything except IAM, Organizations and account management, apart from service-linked roles).
   - `CertlabAdministrator` for administrative changes and bootstrap (`AdministratorAccess`).
 - The owner must be able to open Billing and Budgets in a temporary session. If it cannot, enable billing access for IAM and Identity Center roles in the management account settings.
 - Access to `certlab-prod` is decided in phase 3 with the same model: `Owners` keep `CertlabAdministrator` for emergencies, the tech lead gets `CertlabReadOnly`, and no human gets write access without a recorded decision.

@@ -14,7 +14,7 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 
 - LAB-20 is done and [stage-bootstrap.md](stage-bootstrap.md) is merged.
 - A password manager holds the private values listed below. Create the entries before the steps that need them.
-- A payment method is ready. AWS Organizations needs a Paid plan account, so the Free plan credits do not apply and spend limits no longer cap the bill. The budget in step 8 only alerts, it does not block spending.
+- A payment method is ready. AWS Organizations needs a Paid plan account. Depending on the account's history, AWS may grant no free credits (the setup this runbook records got none), and the Free plan spend limits no longer cap the bill. The budget in step 8 only alerts, it does not block spending.
 - A hardware key or an authenticator app is ready for MFA. Register at least two MFA devices for the root user of the management account.
 
 Private values the maintainer stores (never published):
@@ -57,7 +57,7 @@ Done when: the Organization shows one account (management) and one OU, `Workload
 3. Require MFA at sign-in for all users (always-on, not context-aware), with an authenticator app or security key. Register a separate MFA device entry for each user.
 4. Create the permission sets:
    - `CertlabReadOnly`: AWS managed policy `ReadOnlyAccess`. Everyday inspection.
-   - `CertlabTechLead`: AWS managed policy `PowerUserAccess`. Operating stage resources, without IAM, Organizations or account management.
+   - `CertlabTechLead`: AWS managed policy `PowerUserAccess`. Operating stage resources. It cannot manage IAM users, roles or policies, Organizations or account settings, but AWS allows it to create and delete service-linked roles, and it does not deny budgets or Savings Plans in `certlab-stage`.
    - `CertlabAdministrator`: AWS managed policy `AdministratorAccess`. Bootstrap and administrative changes only.
 5. Keep the session duration short: 1 hour for `CertlabAdministrator`, 4 hours for `CertlabTechLead` and up to 8 hours for `CertlabReadOnly`.
 
@@ -122,28 +122,62 @@ Done when: the budget shows the four alerts and the recipient is active.
 The agent runs only read-only calls. Use an untracked local AWS profile that signs in through Identity Center as `certlab-owner` with `CertlabReadOnly` on `certlab-admin`, which is the only identity that can read the Organization. Do not commit or paste profile names, account IDs or raw output. Reduce each result to a pass or fail line before reporting it.
 
 ```sh
-# Identity Center lives in us-east-1. Without this, sso-admin calls return no instances.
-export AWS_REGION=us-east-1
+# Use the read-only profile and region for the whole block. Use a placeholder name here and
+# keep the real profile name out of the repository. Unset static credentials so they cannot override it.
+unset AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+export AWS_PROFILE=<read-only-profile>
+# Identity Center lives in us-east-1. CLI v1 ignores AWS_REGION, so set both.
+export AWS_REGION=us-east-1 AWS_DEFAULT_REGION=us-east-1
 
 # Organization exists, all features enabled (do not paste the raw output: it contains IDs and e-mail).
 aws organizations describe-organization --query 'Organization.FeatureSet'
 
 # One OU named Workloads under the root.
-aws organizations list-organizational-units-for-parent \
-  --parent-id "$(aws organizations list-roots --query 'Roots[0].Id' --output text)" \
+ROOT_ID="$(aws organizations list-roots --query 'Roots[0].Id' --output text)"
+aws organizations list-organizational-units-for-parent --parent-id "$ROOT_ID" \
   --query 'OrganizationalUnits[].Name'
 
-# Accounts: names and status only.
-aws organizations list-accounts --query 'Accounts[].[Name,Status]' --output text
+# Accounts: names and state only.
+aws organizations list-accounts --query 'Accounts[].[Name,State]' --output text
 
-# Identity Center: one organization instance.
+# certlab-stage sits inside Workloads, and only the management account sits in the root.
+OU_ID="$(aws organizations list-organizational-units-for-parent --parent-id "$ROOT_ID" \
+  --query 'OrganizationalUnits[?Name==`Workloads`].Id' --output text)"
+aws organizations list-accounts-for-parent --parent-id "$OU_ID" --query 'Accounts[].Name' --output text
+aws organizations list-accounts-for-parent --parent-id "$ROOT_ID" --query 'Accounts[].Name' --output text
+
+# Identity Center: one instance.
 aws sso-admin list-instances --query 'length(Instances)'
 
-# Permission sets exist (names only).
+# Permission sets: name, session duration and every attached policy type.
 INSTANCE="$(aws sso-admin list-instances --query 'Instances[0].InstanceArn' --output text)"
 for arn in $(aws sso-admin list-permission-sets --instance-arn "$INSTANCE" --query 'PermissionSets[]' --output text); do
   aws sso-admin describe-permission-set --instance-arn "$INSTANCE" --permission-set-arn "$arn" \
     --query 'PermissionSet.[Name,SessionDuration]' --output text
+  aws sso-admin list-managed-policies-in-permission-set --instance-arn "$INSTANCE" --permission-set-arn "$arn" \
+    --query 'AttachedManagedPolicies[].Name' --output text
+  aws sso-admin list-customer-managed-policy-references-in-permission-set --instance-arn "$INSTANCE" \
+    --permission-set-arn "$arn" --query 'length(CustomerManagedPolicyReferences)' --output text
+  aws sso-admin get-inline-policy-for-permission-set --instance-arn "$INSTANCE" --permission-set-arn "$arn" \
+    --query 'length(InlinePolicy)' --output text
+done
+
+# Assignments: account, permission set and group name. Never print principal IDs.
+STORE="$(aws sso-admin list-instances --query 'Instances[0].IdentityStoreId' --output text)"
+for acc in $(aws organizations list-accounts --query 'Accounts[].Id' --output text); do
+  acc_name="$(aws organizations describe-account --account-id "$acc" --query 'Account.Name' --output text)"
+  for arn in $(aws sso-admin list-permission-sets-provisioned-to-account --instance-arn "$INSTANCE" \
+      --account-id "$acc" --query 'PermissionSets[]' --output text); do
+    ps_name="$(aws sso-admin describe-permission-set --instance-arn "$INSTANCE" --permission-set-arn "$arn" \
+      --query 'PermissionSet.Name' --output text)"
+    for group_id in $(aws sso-admin list-account-assignments --instance-arn "$INSTANCE" --account-id "$acc" \
+        --permission-set-arn "$arn" --query 'AccountAssignments[?PrincipalType==`GROUP`].PrincipalId' --output text); do
+      echo "$acc_name | $ps_name | $(aws identitystore describe-group --identity-store-id "$STORE" \
+        --group-id "$group_id" --query DisplayName --output text)"
+    done
+    aws sso-admin list-account-assignments --instance-arn "$INSTANCE" --account-id "$acc" --permission-set-arn "$arn" \
+      --query 'length(AccountAssignments[?PrincipalType==`USER`])' --output text
+  done
 done
 
 # Root posture of the management account: MFA on, zero access keys.
@@ -152,14 +186,14 @@ aws iam get-account-summary --query 'SummaryMap.[AccountMFAEnabled,AccountAccess
 # Centralized root access is enabled for the Organization.
 aws iam list-organizations-features
 
-# Budget: type, period and limit (do not print subscribers).
+# Budget: type, period, limit and number of cost filters (do not print subscribers).
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
 aws budgets describe-budgets --account-id "$ACCOUNT" \
-  --query 'Budgets[].[BudgetName,TimeUnit,BudgetLimit.Amount,BudgetLimit.Unit]' --output text
+  --query 'Budgets[].[BudgetName,BudgetType,TimeUnit,BudgetLimit.Amount,BudgetLimit.Unit]' --output text
 
-# Budget alerts: four notifications (actual 50/80/100 and forecasted 100).
+# Budget alerts: type, comparison, threshold and threshold type.
 aws budgets describe-notifications-for-budget --account-id "$ACCOUNT" --budget-name certlab-stage-monthly \
-  --query 'Notifications[].[NotificationType,Threshold]' --output text
+  --query 'Notifications[].[NotificationType,ComparisonOperator,Threshold,ThresholdType]' --output text
 ```
 
 Expected result:
@@ -168,14 +202,15 @@ Expected result:
 |---|---|
 | Organization feature set | `ALL` |
 | OUs under root | `Workloads` only |
-| Accounts | `certlab-admin` (management) and `certlab-stage` (`ACTIVE`), nothing else |
+| Accounts | `certlab-admin` (management) and `certlab-stage`, both `ACTIVE`, nothing else |
+| Account parents | `certlab-stage` in `Workloads`; only `certlab-admin` directly in the root |
 | Identity Center instances | 1 |
-| Permission sets | `CertlabReadOnly`, `CertlabTechLead`, `CertlabAdministrator`, with the session durations above |
-| Assignments | Group `Owners`: `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and `certlab-stage`. Group `TechLeads`: `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, nothing on `certlab-admin` |
-| Root MFA / access keys | MFA enabled, 0 keys |
+| Permission sets | `CertlabReadOnly` (`PT8H`, `ReadOnlyAccess`), `CertlabTechLead` (`PT4H`, `PowerUserAccess`) and `CertlabAdministrator` (`PT1H`, `AdministratorAccess`), each with 0 customer-managed policies and 0 inline policy characters |
+| Assignments | Group `Owners`: `CertlabAdministrator` and `CertlabReadOnly` on `certlab-admin` and `certlab-stage`. Group `TechLeads`: `CertlabTechLead` and `CertlabReadOnly` on `certlab-stage`, nothing on `certlab-admin`. No direct user assignment (the user count is 0 on every line) |
+| Root MFA / access keys | MFA enabled (`1`), 0 keys |
 | Organizations features | `RootCredentialsManagement` and `RootSessions` |
-| Budget | `certlab-stage-monthly`, monthly, 10 USD |
-| Budget alerts | `ACTUAL` 50, 80 and 100; `FORECASTED` 100 |
+| Budget | `certlab-stage-monthly`, `COST`, `MONTHLY`, 10 USD |
+| Budget alerts | `ACTUAL` `GREATER_THAN` 50, 80 and 100; `FORECASTED` `GREATER_THAN` 100. The threshold type is `PERCENTAGE` or empty, which is the API default |
 
 The calls cannot prove everything. The maintainer confirms by console or by a received alert: the active state of the budget recipient, the tested root MFA sign-in, the absence of persistent root credentials in `certlab-stage` and the sign-in with both permission sets. Any divergence blocks closing the issue.
 
@@ -191,6 +226,8 @@ Recovery data (backup codes, device serials, recovery e-mail, phone number) stay
 ## Exceptional root use
 
 Use the root user of the management account only for tasks that require it, such as changing the account's support plan or closing the account, and for recovery. Member accounts do not have a persistent root user; use centralized privileged root actions instead. Record each use in the pull request or issue by date and reason, never by credential.
+
+When a member account task needs root credentials and no centralized privileged action covers it, run the privileged task that allows root password recovery from `certlab-admin` as `certlab-owner`. Then reset the member root password through the account's root e-mail inbox, do the task, and delete the root credentials again with centralized root access. Record the use as above.
 
 ## Periodic review
 
