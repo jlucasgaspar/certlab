@@ -23,7 +23,7 @@ The repository is public. This page contains no account IDs, aliases, e-mail add
 
 The Organization, Identity Center, the OU, the member account, assignments, centralized root access and the budget are created manually in the console. They are not managed by the public application Terraform. Workloads in `certlab-stage` are managed by Terraform.
 
-Agents do not create, change or delete external resources. The maintainer runs the manual steps, and agents verify read-only.
+Agents do not create, change or delete external resources. The maintainer runs the manual steps, and agents verify read-only. The ordered procedure, the read-only checks, recovery and the periodic review are in [aws-organization-runbook.md](aws-organization-runbook.md).
 
 ## Budget
 
