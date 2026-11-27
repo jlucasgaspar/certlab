@@ -176,6 +176,9 @@ See [ADR-0006](adr/0006-infrastructure-aws-terraform.md).
 - **Terraform** for everything in AWS. Remote state in S3 with native lock file. Reusable modules in `infra/modules`, one root per environment in `infra/envs/{stage,prod}`.
 - **CI deploys** through GitHub Actions using **OIDC** to assume an AWS role — no long-lived AWS keys anywhere.
 - **AWS Budgets** alerts from day one.
+- **Accounts and access:** a Certlab-controlled AWS Organization with a management account that runs no workloads, an OU `Workloads` and the member account `certlab-stage` (`certlab-prod` arrives in phase 3). Humans use IAM Identity Center with temporary, MFA-protected sessions; the maintainer's personal AWS account stays outside the Organization. Governance is created manually, workloads by Terraform.
+- **Stage parameters:** AWS region `us-east-1`, Neon in `aws-us-east-1`, PostgreSQL 17. CI assumes a role by OIDC limited to the GitHub Environment `stage`; pull requests and forks get no AWS credentials. Neon is created manually, and its runtime and migration URLs move to SSM `SecureString` in phase 1.4.
+- Details, naming, tags and private-identifier handling live in [stage-bootstrap.md](stage-bootstrap.md).
 - Known cost traps we avoid: NAT Gateway, ALB, unnecessary public IPv4 addresses, Multi-AZ databases, Secrets Manager where Parameter Store suffices.
 
 Open: the project domain name (needed for `app.` / `api.` subdomains and cookies).
