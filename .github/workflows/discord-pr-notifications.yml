@@ -1,0 +1,106 @@
+name: Discord PR notifications
+
+# Uses `pull_request_target` so the secret is available to the job. This is safe
+# only because the job never checks out, builds, imports or executes code from
+# the pull request: it reads the event payload and posts it to Discord.
+# Do not add a checkout step or any action that runs pull request code.
+on:
+  pull_request_target:
+    types: [opened, closed]
+    branches: [main]
+
+# The job only reads the event payload, so the token needs no permissions.
+permissions: {}
+
+jobs:
+  notify:
+    name: Notify Discord
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # Closing without merging is not notified.
+    if: github.event.action == 'opened' || github.event.pull_request.merged == true
+    steps:
+      - name: Post to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ACTION: ${{ github.event.action }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+          MERGED_BY: ${{ github.event.pull_request.merged_by.login }}
+          MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${DISCORD_WEBHOOK_URL}" ]]; then
+            echo "::error::The DISCORD_WEBHOOK_URL secret is not configured."
+            exit 1
+          fi
+
+          if [[ "${ACTION}" == "closed" ]]; then
+            kind="merged"
+            color=8359053
+          else
+            kind="opened"
+            color=3066993
+          fi
+
+          # Values are passed as jq arguments, never interpolated into the
+          # script, so titles and logins cannot inject commands or JSON.
+          payload=$(jq -n \
+            --arg kind "${kind}" \
+            --argjson color "${color}" \
+            --arg repository "${REPOSITORY}" \
+            --arg number "${PR_NUMBER}" \
+            --arg title "${PR_TITLE}" \
+            --arg url "${PR_URL}" \
+            --arg author "${PR_AUTHOR}" \
+            --arg merged_by "${MERGED_BY}" \
+            --arg sha "${MERGE_SHA}" \
+            '{
+              allowed_mentions: { parse: [] },
+              embeds: [{
+                title: ("Pull request " + $kind + ": #" + $number + " " + $title)[0:250],
+                url: $url,
+                color: $color,
+                fields: (
+                  [
+                    { name: "Repository", value: $repository, inline: true },
+                    { name: "Author", value: $author, inline: true }
+                  ]
+                  + (if $kind == "merged" and $merged_by != ""
+                      then [{ name: "Merged by", value: $merged_by, inline: true }] else [] end)
+                  + (if $kind == "merged" and $sha != ""
+                      then [{ name: "Commit", value: ("`" + $sha[0:7] + "`"), inline: true }] else [] end)
+                )
+              }]
+            }')
+
+          # The webhook URL is never echoed. Only the HTTP status and the
+          # message Discord returns are printed.
+          if ! status=$(printf '%s' "${payload}" | curl --silent --show-error \
+            --max-time 30 \
+            --output response.json \
+            --write-out '%{http_code}' \
+            --header 'Content-Type: application/json' \
+            --data @- \
+            "${DISCORD_WEBHOOK_URL}"); then
+            echo "::error::Could not reach Discord."
+            exit 1
+          fi
+
+          if [[ "${status}" =~ ^2 ]]; then
+            echo "Discord notification sent (HTTP ${status})."
+            exit 0
+          fi
+
+          if [[ "${status}" == "429" ]]; then
+            retry_after=$(jq -r '.retry_after // "unknown"' response.json 2>/dev/null || echo unknown)
+            echo "::error::Discord rate limit reached (HTTP 429). Retry after ${retry_after}s."
+          else
+            message=$(jq -r '.message // "no message"' response.json 2>/dev/null || echo "unreadable response")
+            echo "::error::Discord rejected the notification (HTTP ${status}): ${message}"
+          fi
+          exit 1
