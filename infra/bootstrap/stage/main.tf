@@ -5,5 +5,5 @@
 module "state_backend" {
   source = "../../modules/state-backend"
 
-  bucket_name = "certlab-stage-tfstate-${var.bucket_suffix}"
+  bucket_name = "stage-certlab-tfstate-${var.bucket_suffix}"
 }

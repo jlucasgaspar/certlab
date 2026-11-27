@@ -35,7 +35,7 @@ These files are ignored by Git. Copy each `*.example` file and replace the place
 | File | Where | Content |
 |---|---|---|
 | `stage.local.tfvars` | `bootstrap/stage/` and `envs/stage/` | The `certlab-stage` account ID and, for the bootstrap, the private bucket suffix. |
-| `backend.local.hcl` | `bootstrap/stage/` and `envs/stage/` | The full bucket name: `certlab-stage-tfstate-` followed by the private suffix. |
+| `backend.local.hcl` | `bootstrap/stage/` and `envs/stage/` | The full bucket name: `stage-certlab-tfstate-` followed by the private suffix. |
 | `backend.tf` | `bootstrap/stage/` | Copy of `backend.tf.example`, used only for the state migration. |
 
 The provider refuses to run when the credentials belong to another account (`allowed_account_ids`). This blocks an apply in the management account by mistake.

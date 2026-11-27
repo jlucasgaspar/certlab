@@ -63,7 +63,9 @@ The latency from a phone in Brazil to `us-east-1` is higher than to `sa-east-1`.
 
 ## Naming and tags
 
-- Resource names follow `certlab-<environment>-<purpose>`, lowercase and hyphen-separated, for example `certlab-stage-tfstate`. Where AWS requires a globally unique name, add a suffix supplied privately (see below) instead of publishing the unique value.
+- Resource names follow `<environment>-certlab-<purpose>`, lowercase and hyphen-separated, for example `stage-certlab-ci-deploy` and, in production, `prod-certlab-ci-deploy`. The environment comes first so a console listing groups resources by environment.
+- Names that AWS requires to be globally unique, such as S3 buckets, add a random suffix supplied privately: `<environment>-certlab-<purpose>-<suffix>`, for example `stage-certlab-tfstate-<suffix>`. Never publish the suffix. A predictable global name can be claimed by someone else before it is created (bucket squatting), and a state bucket owned by another account would receive the state.
+- Account names are governance names and keep their form: `certlab-admin`, `certlab-stage` and, later, `certlab-prod`. Manual governance resources created before this convention, such as the budget `certlab-stage-monthly`, keep their names.
 - Every taggable resource carries these tags:
 
 | Tag | Value |
