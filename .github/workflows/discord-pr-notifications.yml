@@ -78,6 +78,14 @@ jobs:
               }]
             }')
 
+          # `wait=true` makes Discord confirm the message was created instead of
+          # only queueing it. Existing query parameters are preserved.
+          if [[ "${DISCORD_WEBHOOK_URL}" == *\?* ]]; then
+            request_url="${DISCORD_WEBHOOK_URL}&wait=true"
+          else
+            request_url="${DISCORD_WEBHOOK_URL}?wait=true"
+          fi
+
           # The webhook URL is never echoed. Only the HTTP status and the
           # message Discord returns are printed.
           if ! status=$(printf '%s' "${payload}" | curl --silent --show-error \
@@ -86,7 +94,7 @@ jobs:
             --write-out '%{http_code}' \
             --header 'Content-Type: application/json' \
             --data @- \
-            "${DISCORD_WEBHOOK_URL}"); then
+            "${request_url}"); then
             echo "::error::Could not reach Discord."
             exit 1
           fi
