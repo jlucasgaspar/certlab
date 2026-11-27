@@ -1,2 +1,2 @@
 # Copy to backend.local.hcl (ignored by Git) and replace the placeholder.
-bucket = "certlab-stage-tfstate-REPLACE_WITH_PRIVATE_SUFFIX"
+bucket = "stage-certlab-tfstate-REPLACE_WITH_PRIVATE_SUFFIX"
