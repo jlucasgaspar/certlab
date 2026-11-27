@@ -209,4 +209,4 @@ Record the date and the outcome of each review here or in the issue that perform
 
 | Date | Result |
 |---|---|
-| 2026-11-27 | The maintainer ran steps 1 to 8. The read-only verification passed: Organization, OU, accounts, Identity Center, permission sets, root MFA and access keys, centralized root access, and the budget with its four alerts. The maintainer confirmed in the console that `certlab-stage` has no root credentials and that both users sign in with the expected access. The budget recipient state is not exposed by the API and awaits the maintainer's confirmation. |
+| 2026-11-27 | The maintainer ran steps 1 to 8. The read-only verification passed: Organization, OU, accounts, Identity Center, permission sets, root MFA and access keys, centralized root access, and the budget with its four alerts. The maintainer confirmed in the console that `certlab-stage` has no root credentials and that both users sign in with the expected access. The budget recipient state is not exposed by the API, so the maintainer confirmed in the console that no recipient shows a pending state. |
