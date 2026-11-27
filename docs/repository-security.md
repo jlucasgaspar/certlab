@@ -7,6 +7,7 @@ Certlab is a public repository on a personal GitHub account. Anyone can read it,
 - The maintainer (`@jlucasgaspar`) is the only collaborator, with admin access. There are no pending invitations and no deploy keys.
 - Treat anyone with write access as able to use the repository secrets, because they can change a workflow on a branch. Grant write access only by named exception, with a justification and a review date, and record it here.
 - Review the installed GitHub Apps and other integrations under **Settings → Integrations**. Each one must be limited to this repository and to the permissions it needs. Remove the ones that are not used.
+- The maintainer reviewed the installed GitHub Apps and integrations on 2026-11-27 and confirmed they are limited to this repository.
 - Agents authenticate with the maintainer's credentials and never use the maintainer bypass described below.
 
 ## Review of changes to `main`
@@ -31,7 +32,7 @@ Decision (2026-11-27), the repository **admin role** is a bypass actor of the ru
 Rules for using it:
 
 - Only the maintainer merges. Agents and automation never merge and never use the bypass.
-- Revisit this when a second reviewer, or a separate review account with its own access, exists. Then remove the bypass actor and add the reviewer to `CODEOWNERS`.
+- Remove the bypass actor and add the reviewer to `CODEOWNERS` when a second reviewer, or a separate review account with its own access, exists. This is not a priority now.
 
 ## GitHub Actions
 

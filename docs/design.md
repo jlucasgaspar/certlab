@@ -200,7 +200,7 @@ Because most code will be written by AI agents, these are requirements from phas
 **Repository rules:**
 - `main` is protected: PR required, CI required, Code Owner approval (the maintainer can bypass it, see `docs/repository-security.md`), no force pushes, merge commits only.
 - Every PR links its Linear ticket; the PR template asks what was tested and what risk it carries.
-- Dependency updates via Renovate (or Dependabot).
+- Dependency updates via Renovate; Dependabot only raises security alerts and security updates.
 - `CLAUDE.md` / `AGENTS.md` at the root and in each app tell agents the conventions, commands and boundaries.
 
 **Code conventions:** TypeScript strict everywhere, ESLint with type-aware rules (e.g. no floating promises), Prettier, no `any` without a comment explaining why. Code, identifiers and commit messages in English.

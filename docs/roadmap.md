@@ -16,18 +16,19 @@ This roadmap is the spec source; the actual work is tracked as tickets in **Line
 Goal: a repository where AI agents can safely open PRs, and a login that works on a real URL.
 
 **1.1 Repository foundation** (before the first AI-written PR)
-- [ ] Git repo + GitHub, `main` protected (PR + green CI required, no force push).
-- [ ] pnpm workspaces + Turborepo; `apps/api`, `apps/web`, `packages/{contracts,core,tokens,config}`.
-- [ ] TypeScript strict, ESLint (type-aware) + Prettier, Vitest.
-- [ ] lefthook: format/lint + gitleaks on commit, commitlint on message, typecheck + tests on push.
-- [ ] GitHub Actions CI: lint, typecheck, test, build, secret scan, dependency audit.
-- [ ] `CLAUDE.md` / `AGENTS.md`, PR template, issue template.
-- [ ] Move the current root `README.md` (product vision) to `docs/vision.md`.
-- [ ] Write a new root `README.md` for developers: what Certlab is (one paragraph + link to `docs/vision.md`), repo layout, prerequisites, setup, common commands, environments, links to `docs/design.md`, `docs/roadmap.md` and `docs/adr/`.
-- [ ] Renovate or Dependabot.
-- [ ] Discord webhook notifications when a pull request is opened and when one is merged into `main`; keep the webhook URL in a GitHub secret, never in the repository.
-- [ ] Repository hardening: Code Owner review on `main`, access and Actions least privilege, secrets inventory, `SECURITY.md` and GitHub security features, documented in `docs/repository-security.md`.
-- [ ] Shared `docs/backlog.md` handoff where implementation agents record deferred findings and the PM agent triages them into focused Linear issues.
+- [x] Git repo + GitHub, `main` protected (PR + green CI required, no force push).
+- [x] pnpm workspaces + Turborepo; `apps/api`, `apps/web`, `packages/{contracts,core,tokens,config}`.
+- [x] TypeScript strict, ESLint (type-aware) + Prettier, Vitest.
+- [x] lefthook: format/lint + gitleaks on commit, commitlint on message, typecheck + tests on push.
+- [x] GitHub Actions CI: lint, typecheck, test, build, secret scan, dependency audit.
+- [x] `CLAUDE.md` / `AGENTS.md`, PR template, issue template.
+- [x] Move the current root `README.md` (product vision) to `docs/vision.md`.
+- [x] Write a new root `README.md` for developers: what Certlab is (one paragraph + link to `docs/vision.md`), repo layout, prerequisites, setup, common commands, environments, links to `docs/design.md`, `docs/roadmap.md` and `docs/adr/`.
+- [x] Renovate (weekly, grouped, no automerge). Dependabot security updates are also enabled for advisories.
+- [x] Discord webhook notifications when a pull request is opened and when one is merged into `main`; keep the webhook URL in a GitHub secret, never in the repository.
+- [x] Repository hardening: Code Owner review on `main`, access and Actions least privilege, secrets inventory, `SECURITY.md` and GitHub security features, documented in `docs/repository-security.md`.
+  - Delivered: `CODEOWNERS`, `SECURITY.md`, Code Owner approval rule, Actions least privilege, secrets inventory and Security features. The maintainer confirmed on 2026-11-27 that the installed GitHub Apps and the Discord webhook are in order. Known deviation: the repository admin role bypasses the approval rule so the sole maintainer can merge. Remove the bypass when a second reviewer exists (not a priority; see `docs/repository-security.md`).
+- Dropped: the shared `docs/backlog.md` handoff between implementation agents and the PM agent. The maintainer decided not to build it (2026-11-27), so deferred findings are reported in the pull request instead.
 - [ ] Phase 1.1 wrap-up: reconcile delivered work and roadmap checkboxes, update documentation and agent guidance, verify versions and quality gates, and record follow-up work.
 
 **1.2 Infrastructure bootstrap**
