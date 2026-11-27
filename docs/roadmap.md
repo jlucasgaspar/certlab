@@ -1,6 +1,6 @@
 # Certlab — MVP Roadmap
 
-> Status: draft · Last updated: 2026-11-26
+> Status: draft · Last updated: 2026-11-27
 > Architecture: [design.md](design.md) · Decisions: [adr/](adr/README.md)
 
 Five phases. Everything lands in **stage** first, built the cheapest way that is still done properly. Production comes only after the product is real and used daily (by Zé, studying CLF-C02 on his phone).
@@ -43,17 +43,24 @@ Goal: a repository where AI agents can safely open PRs, and a login that works o
 - [ ] Drizzle schema + SQL migrations; query-driven indexes only (each non-constraint index must serve a documented access pattern); migration step in CI/CD.
 - [ ] Rate limiting on auth endpoints.
 
-**1.5 Web UI (local, then stage)**
+**1.5 Data protection and privacy baseline**
+- [ ] Inventory the personal data collected by auth, profiles, learning events, logs and support; classify sensitivity, purpose, access and the proposed LGPD legal basis without collecting data that has no defined purpose.
+- [ ] Define a retention schedule for each data class, including sessions and reset tokens, `answer_attempt`, operational logs and backups; implement automated expiry, deletion or anonymization where the duration is known, and track unresolved durations as a launch-blocking legal/product decision.
+- [ ] Define account-deletion behavior across primary, derived and cached data, including the bounded expiry of copies retained in backups and any narrowly justified legal or security exception.
+- [ ] Maintain a cookie and SDK inventory. Start with strictly necessary authentication and preference storage only; do not add analytics, advertising or other non-essential tracking until it is documented and, when required, blocked behind consent with a way to withdraw it.
+- [ ] Publish a concise stage privacy notice in English and Brazilian Portuguese before anyone beyond the maintainer is invited to create an account; link it from sign-up and settings.
+
+**1.6 Web UI (local, then stage)**
 - [ ] Vite + React app, design tokens and fonts, base components ported from the design system.
 - [ ] Localization foundation: English (`en`) and Brazilian Portuguese (`pt-BR`) message catalogs, English fallback, browser locale detection, manual language selection and persisted preference; no hard-coded user-facing copy.
 - [ ] Screens in both supported locales: Welcome, Sign up / Log in, Reset password, empty "bench" after login.
 - [ ] Deploy to S3 + CloudFront (stage) via CI.
 
-**1.6 AI workflow**
+**1.7 AI workflow**
 - [ ] Linear workspace and project; ticket template following the [issue writing standard](issue-writing-standard.md).
 - [ ] First loop: AI writes ticket → AI opens PR → CI → human review → merge → auto-deploy to stage.
 
-**Exit check:** from a phone, on the stage URL, you can sign up, log in, reset your password and delete your account; every change reached stage through a reviewed PR with green CI.
+**Exit check:** from a phone, on the stage URL, you can sign up, log in, reset your password and delete your account; the stage data inventory, retention rules and privacy notice match that behavior; every change reached stage through a reviewed PR with green CI.
 
 ---
 
@@ -88,11 +95,18 @@ Goal: everything built so far running in production, properly, at low cost. Come
 - [ ] Data migration path stage → prod (content only; stage users stay in stage).
 - [ ] Backups and a tested restore.
 - [ ] Alarms on errors, latency and cost.
+- [ ] Pre-launch threat model and security review covering authorization, auth/recovery, XSS/script injection, SQL injection, CSRF, malicious payloads and abuse; remediate launch-critical findings before public traffic.
+- [ ] Edge and DDoS/abuse baseline: CloudFront/API Gateway protections, route-specific throttling, payload and timeout bounds, concurrency/cost alarms and a documented WAF decision; enable WAF before public launch when the threat/cost assessment requires it.
 - [ ] API versioning policy (`/v1`) frozen before phase 4.
 - [ ] Sign in with Apple added to auth.
-- [ ] Privacy policy and terms pages.
+- [ ] Final privacy policy and terms in the supported product locales, linked from the web app and usable as stable public URLs for both stores; the policy must match the implemented data flows and identify the controller and privacy contact.
+- [ ] LGPD operating procedure for access, correction, deletion, consent withdrawal and other applicable data-subject requests, with request verification and an auditable response record that does not expose the requested data.
+- [ ] Production data-retention enforcement: scheduled expiry/deletion/anonymization jobs, log retention, backup expiration and a tested account-deletion path across primary and derived data.
+- [ ] Processor and data-transfer register for hosting, authentication, email, observability, push and any analytics vendors; required contracts and unresolved legal bases or transfer safeguards block public launch.
+- [ ] Cookie/SDK inventory reconciled with production. If non-essential tracking exists, consent is opt-in where required, recorded, revocable and honored before those technologies load; otherwise no cookie banner is added merely for strictly necessary storage.
+- [ ] Incident-response and personal-data-breach playbook with owners, evidence preservation, severity assessment and applicable notification decision points.
 
-**Exit check:** prod serves the web app; a restore from backup has been tested; monthly cost is known and within budget.
+**Exit check:** prod serves the web app; a restore from backup and the personal-data deletion/retention paths have been tested; the public privacy disclosures match production and no unresolved launch-blocking privacy decision remains; monthly cost is known and within budget.
 
 ---
 
@@ -103,10 +117,11 @@ Goal: everything built so far running in production, properly, at low cost. Come
 - [ ] `apps/mobile` consuming `contracts`, `core`, `tokens`.
 - [ ] Native UI consuming the shared English and Brazilian Portuguese message catalogs and honoring the user's saved language preference.
 - [ ] Native essentials: Sign in with Apple, push notifications (streak reminders), haptics, deep links.
-- [ ] Store assets (icon 1024 exported crisp, screenshots, descriptions), privacy labels.
+- [ ] Store assets (icon 1024 exported crisp, screenshots, descriptions) and store privacy/data-safety disclosures reconciled against the production data inventory, SDKs, retention and account-deletion behavior.
+- [ ] Pre-submission privacy review: policy URLs work without authentication, in-app disclosures and permissions are contextual, consent/withdrawal works where applicable, and Apple/Google declarations match actual behavior.
 - [ ] TestFlight / internal testing track, then submission.
 
-**Exit check:** the app is approved (or in review) on both stores, talking to prod.
+**Exit check:** the app is approved (or in review) on both stores, talking to prod, with store disclosures that match the shipped build and backend.
 
 ---
 
@@ -122,7 +137,10 @@ Goal: package the MVP, raise the quality bar, and plan the future.
 - [ ] Automated tests: coverage thresholds for API and web, E2E suite for the main journeys, contract tests between API and clients.
 - [ ] CI: fully defined pipeline, AI code review agents (bugs, security, architecture), preview environments if cheap.
 - [ ] Observability: OpenTelemetry traces and metrics, dashboards, alerting, frontend and mobile error tracking.
-- [ ] Security: WAF, per-user/per-IP rate limits, OWASP review, dependency and secret scanning in place, auth flow review.
+- [ ] Security verification: update the threat model and test authorization boundaries, auth and account recovery, XSS/script injection, SQL injection, CSRF, SSRF where outbound requests exist, malicious payloads, dependency/secret exposure and abuse/DDoS controls; remediate launch-critical findings.
+- [ ] Edge and abuse hardening: verify and tune WAF or the documented alternative, per-user/per-IP rate and concurrency limits, request-size and timeout bounds, cost alarms and a degradation/runbook strategy for traffic floods.
+- [ ] Privacy verification: reconcile the data map, processor register, public notices and store declarations with the deployed system; test data-subject request handling, account deletion, retention jobs and backup expiry.
+- [ ] AI security gate (when an AI feature is introduced): threat-model prompt injection, retrieval poisoning, sensitive-data disclosure, unsafe output rendering and tool abuse; treat user/retrieved content as untrusted, enforce least privilege and cost limits, and run adversarial evaluations before release.
 
 **Future (post-MVP backlog)**
 - [ ] Spaced repetition with FSRS: questions you miss often come back more often, mastered ones less.

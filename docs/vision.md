@@ -371,7 +371,9 @@ Initial topics to investigate before and during development:
 | Infrastructure | API Gateway and rate limiting |
 | Infrastructure | Load balancing and caching |
 | Infrastructure | Messaging and asynchronous processing |
-| Security | API security and attack prevention |
+| Security | Web/API threat modeling: authorization, XSS/script injection, SQL injection, CSRF, SSRF, abuse and DDoS mitigation |
+| Security | AI threat modeling before AI features: prompt injection, retrieval poisoning, data disclosure and tool abuse |
+| Privacy | LGPD data inventory, legal bases, retention and deletion, cookies/SDKs, processors and store disclosures |
 | AI | AI agents and automated code reviews |
 | Integration | Linear API and workflows |
 | Documentation | Technical writing and publishing workflow |
@@ -414,6 +416,7 @@ Initial topics to investigate before and during development:
 
 - [ ] Implement API security.
 - [ ] Implement rate limiting.
+- [ ] Implement the privacy and data-lifecycle controls required before public production and store submission.
 - [ ] Implement caching.
 - [ ] Implement asynchronous processing where necessary.
 - [ ] Implement logging and monitoring.
