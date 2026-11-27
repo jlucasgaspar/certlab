@@ -54,7 +54,12 @@ The maintainer runs this. Agents never run `apply`. Use a temporary IAM Identity
    terraform init -migrate-state -backend-config=backend.local.hcl
    ```
    Answer `yes`. Then `terraform plan -var-file=stage.local.tfvars` must show no changes.
-6. Confirm the state object exists in the bucket. Only then delete the local `terraform.tfstate*` files in `bootstrap/stage/`, and the `tfplan` file.
+6. Confirm the state object exists in the bucket, and that the local copy is no longer the source of truth. Check all of these before deleting anything:
+   - `backend.tf` exists in `bootstrap/stage/`, and `terraform init` reported the `s3` backend.
+   - `aws s3 ls "s3://<bucket>/bootstrap/stage/"` lists `terraform.tfstate`.
+   - `terraform plan -var-file=stage.local.tfvars` reads that state and reports no changes. A plan that wants to create the 6 resources again means the state is not in the bucket.
+
+   Only then delete the local `terraform.tfstate*` files in `bootstrap/stage/`, and the `tfplan` file. If you delete them first, the recovery below restores the state.
 7. Initialize the stage environment against the bucket:
    ```sh
    cd ../../envs/stage
@@ -76,3 +81,9 @@ An agent can then verify the bucket read-only with the `certlab-owner` `CertlabR
 ## Cost
 
 The state bucket holds a few kilobytes of state and versions. S3 storage and requests cost far less than USD 0.01 per month, and SSE-S3 encryption, versioning, public access block and bucket policy add no charge. There is no KMS key, no DynamoDB table and no replication.
+
+## Verification record
+
+| Date | Result |
+|---|---|
+| 2026-11-27 | The maintainer ran the bootstrap as `certlab-owner` with `CertlabAdministrator`, then initialized and applied `envs/stage` against the remote backend. A read-only inspection with `CertlabReadOnly` on `certlab-stage` confirmed the bucket: Block Public Access on all four settings and not public, `BucketOwnerEnforced`, versioning enabled, `AES256` encryption, a `DenyInsecureTransport` policy, the four required tags, no DynamoDB table, and a native lock object created and removed with no lock left behind. The bootstrap state was lost before the migration, so the maintainer imported the six resources into a fresh state stored in the bucket, and the plan reported no changes. The read-only inspection then found the bootstrap and stage state objects in the bucket. |
